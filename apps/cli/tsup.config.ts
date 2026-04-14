@@ -5,5 +5,6 @@ export default defineConfig({
   format: ['esm'],
   clean: true,
   target: 'node22',
+  noExternal: [/^@choochoo\//],
   banner: { js: '#!/usr/bin/env node' },
 });

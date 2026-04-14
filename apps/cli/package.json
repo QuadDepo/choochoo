@@ -13,7 +13,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@choochoo/core": "workspace:*"
+    "@choochoo/core": "workspace:*",
+    "playwright": "^1.59.1"
   },
   "devDependencies": {
     "tsup": "^8.4.0",
