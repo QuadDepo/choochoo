@@ -5,9 +5,15 @@ import { homedir } from 'node:os';
 export const CONFIG_DIR = join(homedir(), '.config', 'choochoo');
 export const CONFIG_FILE = 'config.json';
 
+export interface Card {
+  name: string;
+  id: string;
+}
+
 export interface NsConfig {
   email: string;
   password: string;
+  cards: Card[];
 }
 
 export interface ConfigOptions {
@@ -42,5 +48,23 @@ export const loadConfig = (options: ConfigOptions = {}): NsConfig => {
     );
   }
 
-  return { email, password };
+  const cards = (cfg.cards as Card[] | undefined) ?? [];
+
+  return { email, password, cards };
+};
+
+export const selectCard = (cards: Card[], name?: string): Card => {
+  if (cards.length === 0) {
+    throw new Error('No cards configured.');
+  }
+
+  if (name) {
+    const card = cards.find((c) => c.name === name);
+    if (!card) {
+      throw new Error(`Card "${name}" not found. Available: ${cards.map((c) => c.name).join(', ')}`);
+    }
+    return card;
+  }
+
+  return cards[0]!;
 };
