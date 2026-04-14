@@ -1,10 +1,21 @@
-import { launchBrowser, loginAndNavigate, loadConfig } from '@choochoo/core';
+import {
+  launchBrowser,
+  loginAndNavigate,
+  loadConfig,
+  selectCard,
+  buildHistoryUrl,
+} from '@choochoo/core';
 
-const credentials = loadConfig();
+const config = loadConfig();
+const card = selectCard(config.cards);
+const targetUrl = buildHistoryUrl(card.id);
+
+console.log(`Using card: ${card.name}`);
+console.log(`Target URL: ${targetUrl}`);
 
 const { page, close } = await launchBrowser({ headless: false });
 try {
-  await loginAndNavigate(page, credentials, 'https://www.ns.nl/mijnns');
+  await loginAndNavigate(page, config, targetUrl);
   console.log('Logged in. URL:', page.url());
   await page.waitForTimeout(5000);
 } finally {
