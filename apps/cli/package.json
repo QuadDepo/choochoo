@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@choochoo/core": "workspace:*",
+    "citty": "^0.2.2",
     "playwright": "^1.59.1"
   },
   "devDependencies": {
