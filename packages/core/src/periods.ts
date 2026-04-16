@@ -7,3 +7,13 @@ export const PERIODS = [
 ] as const;
 
 export type Period = typeof PERIODS[number];
+
+export const isPeriod = (input: string): input is Period =>
+  (PERIODS as readonly string[]).includes(input);
+
+export const assertPeriod = (input: string): Period => {
+  if (!isPeriod(input)) {
+    throw new Error(`Invalid period "${input}". Available: ${PERIODS.join(', ')}`);
+  }
+  return input;
+};

@@ -11,6 +11,13 @@ export {
   type ExtractResult,
 } from './browser/trips';
 export {
+  configureDownload,
+  downloadPdf,
+  parseSelection,
+  NsDownloadError,
+  type Selection,
+} from './browser/download';
+export {
   loadConfig,
   selectCard,
   CONFIG_DIR,
@@ -20,4 +27,4 @@ export {
   type Card,
 } from './config';
 export { buildHistoryUrl } from './urls';
-export { PERIODS, type Period } from './periods';
+export { PERIODS, isPeriod, assertPeriod, type Period } from './periods';

@@ -1,0 +1,17 @@
+/** NS DOM selectors — shared between trips.ts and download.ts to keep them in sync. */
+export const SELECTORS = {
+  tripCheckbox: "input[id^='declare-HB']",
+  tripContainer: '.flexItems__container',
+  tripPrice: '.transactionAmount',
+  tripCarrier: '.flex__item--transactions-carrier span',
+  routeDeparture: "nes-route[data-test-id='journeyDeparture']",
+  routeArrival: "nes-route[data-test-id='journeyArrival']",
+  routeTime: 'time[datetime]',
+  routeLocation: "[data-test-id='nes-route-location']",
+  dayGroup: '.grouped-container',
+  dayHeader: '.grouped-container__header',
+  downloadAllRadio: 'input[id="downloadAllTransactions"]',
+  downloadButton: 'nes-button.downloadButton',
+  allRadios: 'input[type="radio"]',
+  declaratiesLabel: 'declaratie',
+} as const;

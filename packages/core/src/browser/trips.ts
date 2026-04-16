@@ -1,19 +1,7 @@
 import type { Page } from 'playwright';
+import { SELECTORS } from './selectors';
 
 const EMPTY_STATE_TEXT = 'Er zijn geen resultaten voor de geselecteerde periode of kaart';
-
-const SELECTORS = {
-  tripCheckbox: "input[id^='declare-HB']",
-  tripContainer: '.flexItems__container',
-  tripPrice: '.transactionAmount',
-  tripCarrier: '.flex__item--transactions-carrier span',
-  routeDeparture: "nes-route[data-test-id='journeyDeparture']",
-  routeArrival: "nes-route[data-test-id='journeyArrival']",
-  routeTime: 'time[datetime]',
-  routeLocation: "[data-test-id='nes-route-location']",
-  dayGroup: '.grouped-container',
-  dayHeader: '.grouped-container__header',
-} as const;
 
 export interface RawTrip {
   num: number;
