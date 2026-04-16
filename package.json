@@ -8,7 +8,6 @@
     "clean": "turbo run clean"
   },
   "devDependencies": {
-    "@types/node": "^25.6.0",
     "turbo": "^2.5.0",
     "typescript": "^5.9.3"
   },

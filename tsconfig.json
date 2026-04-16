@@ -11,7 +11,8 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "declaration": true
+    "declaration": true,
+    "types": ["node"]
   },
   "exclude": ["node_modules"]
 }
