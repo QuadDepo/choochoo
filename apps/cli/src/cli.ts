@@ -1,4 +1,5 @@
-import { resolve } from 'node:path';
+import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { resolve, dirname, join } from 'node:path';
 import { defineCommand, runMain } from 'citty';
 import type { Page } from 'playwright';
 import {
@@ -14,6 +15,9 @@ import {
   downloadPdf,
   parseSelection,
   assertPeriod,
+  pdfFilename,
+  CONFIG_DIR,
+  CONFIG_FILE,
   type Period,
 } from '@choochoo/core';
 
@@ -64,19 +68,51 @@ async function withNsSession(
   }
 }
 
+const init = defineCommand({
+  meta: { name: 'init', description: 'Create a config file template at ~/.config/choochoo/config.json' },
+  async run() {
+    const configPath = join(CONFIG_DIR, CONFIG_FILE);
+    if (existsSync(configPath)) {
+      console.log(`Config already exists at ${configPath}`);
+      return;
+    }
+    const template = {
+      email: '',
+      password: '',
+      cards: [{ name: 'personal', id: '' }],
+    };
+    mkdirSync(CONFIG_DIR, { recursive: true });
+    writeFileSync(configPath, JSON.stringify(template, null, 2) + '\n');
+    console.log(`Config created at ${configPath}\nFill in your NS.nl credentials and card ID.`);
+  },
+});
+
 const extract = defineCommand({
   meta: { name: 'extract', description: 'Extract trips from travel history' },
-  args: sharedArgs,
+  args: {
+    ...sharedArgs,
+    json: {
+      type: 'string',
+      description: 'Save extracted trips to this JSON path',
+    },
+  },
   async run({ args }) {
-    await withNsSession(args, async ({ page }) => {
+    await withNsSession(args, async ({ page, period }) => {
       const raw = await extractTripsFromPage(page);
-      const { trips, excluded, totalEur } = processTrips(raw);
+      const result = processTrips(raw);
 
-      console.log(`\n${trips.length} trips (${excluded} zero-cost excluded)`);
-      for (const t of trips) {
+      console.log(`\n${result.trips.length} trips (${result.excluded} zero-cost excluded)`);
+      for (const t of result.trips) {
         console.log(`  ${String(t.num).padStart(2)}  ${t.date.padEnd(28)}  ${t.from} → ${t.to}  €${t.priceEur.toFixed(2)}`);
       }
-      console.log(`  Total: €${totalEur.toFixed(2)}\n`);
+      console.log(`  Total: €${result.totalEur.toFixed(2)}\n`);
+
+      if (args.json) {
+        const jsonPath = resolve(args.json);
+        mkdirSync(dirname(jsonPath), { recursive: true });
+        writeFileSync(jsonPath, JSON.stringify({ ...result, period }, null, 2) + '\n');
+        console.log(`JSON: ${jsonPath}\n`);
+      }
     });
   },
 });
@@ -98,10 +134,9 @@ const download = defineCommand({
   async run({ args }) {
     const selection = parseSelection(args.select);
     await withNsSession(args, async ({ page, period }) => {
-      const date = new Date().toISOString().slice(0, 10);
       const outputPath = args.output
         ? resolve(args.output)
-        : resolve(process.cwd(), 'downloads', `ns-declaratie-${period}-${date}.pdf`);
+        : resolve(process.cwd(), 'downloads', pdfFilename(period));
 
       await configureDownload(page, selection);
       await downloadPdf(page, outputPath);
@@ -112,7 +147,7 @@ const download = defineCommand({
 
 const main = defineCommand({
   meta: { name: 'choochoo', description: 'NS.nl travel declaration automation' },
-  subCommands: { extract, download },
+  subCommands: { init, extract, download },
 });
 
 runMain(main);
