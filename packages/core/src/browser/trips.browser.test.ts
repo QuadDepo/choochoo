@@ -2,17 +2,17 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { launchBrowser, type BrowserSession } from './launch';
+import { createTestSession, type TestSession } from '../../test/helpers/browser';
 import { extractTripsFromPage, processTrips, waitForTrips } from './trips';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const fixture = (name: string) =>
   readFileSync(join(here, '..', '..', 'test', 'fixtures', `${name}.html`), 'utf8');
 
-let session: BrowserSession;
+let session: TestSession;
 
 beforeAll(async () => {
-  session = await launchBrowser({ headless: true });
+  session = await createTestSession();
 });
 
 afterAll(async () => {
