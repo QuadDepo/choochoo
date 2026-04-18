@@ -2,6 +2,7 @@ import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { Page } from 'playwright';
 import { SELECTORS } from './selectors';
+import { parsePrice } from '../price';
 
 export type Selection = 'paid' | 'all' | number[];
 
@@ -11,8 +12,8 @@ export class NsDownloadError extends Error {
 
 export const parseSelection = (input: string): Selection => {
   if (input === 'paid' || input === 'all') return input;
-  const nums = input.split(',').map((n) => {
-    const trimmed = n.trim();
+  const nums = input.split(',').map((part) => {
+    const trimmed = part.trim();
     const num = parseInt(trimmed, 10);
     if (Number.isNaN(num) || num <= 0 || String(num) !== trimmed) {
       throw new NsDownloadError(`Invalid trip number: "${trimmed}"`);
@@ -34,6 +35,23 @@ const clickDeclaratiesRadio = async (page: Page) => {
   }, SELECTORS);
 };
 
+const clickTripsByIndex = async (page: Page, nums: number[]) => {
+  await page.evaluate(({ sel, nums: tripNums }) => {
+    document.querySelectorAll<HTMLInputElement>(sel.tripCheckbox).forEach((cb, index) => {
+      if (tripNums.includes(index + 1) && !cb.checked) cb.click();
+    });
+  }, { sel: SELECTORS, nums });
+};
+
+/** Read price strings in DOM order so the real parsePrice can decide what's billable in Node. */
+const readPriceTexts = async (page: Page): Promise<string[]> =>
+  page.evaluate((sel) =>
+    Array.from(document.querySelectorAll(sel.tripCheckbox)).map((cb) => {
+      const container = cb.closest(sel.tripContainer);
+      return container?.querySelector(sel.tripPrice)?.textContent ?? '';
+    }),
+  SELECTORS);
+
 export const configureDownload = async (page: Page, selection: Selection): Promise<void> => {
   await page.evaluate(() => window.scrollBy(0, 500));
 
@@ -45,33 +63,28 @@ export const configureDownload = async (page: Page, selection: Selection): Promi
   }
 
   if (selection === 'paid') {
-    await page.evaluate((sel) => {
-      document.querySelectorAll<HTMLInputElement>(sel.tripCheckbox).forEach((cb) => {
-        const container = cb.closest(sel.tripContainer);
-        if (!container) return;
-        // Mirror of parsePrice() — must be inline since page.evaluate runs in the browser.
-        const priceText = container.querySelector(sel.tripPrice)?.textContent?.replace(/\u00a0/g, '').trim() ?? '0';
-        const price = parseFloat(priceText.replace('€', '').replace(',', '.').trim()) || 0;
-        if (price > 0 && !cb.checked) cb.click();
-      });
-    }, SELECTORS);
+    const priceTexts = await readPriceTexts(page);
+    const paidNums = priceTexts
+      .map((text, index) => ({ num: index + 1, eur: parsePrice(text) }))
+      .filter((trip) => trip.eur > 0)
+      .map((trip) => trip.num);
+
+    if (paidNums.length === 0) throw new NsDownloadError('No paid trips to select.');
+
+    await clickTripsByIndex(page, paidNums);
     await clickDeclaratiesRadio(page);
     return;
   }
 
   if (Array.isArray(selection)) {
     if (selection.length === 0) throw new NsDownloadError('Empty trip selection.');
-    await page.evaluate(({ sel, nums }) => {
-      document.querySelectorAll<HTMLInputElement>(sel.tripCheckbox).forEach((cb, i) => {
-        if (nums.includes(i + 1) && !cb.checked) cb.click();
-      });
-    }, { sel: SELECTORS, nums: selection });
+    await clickTripsByIndex(page, selection);
     await clickDeclaratiesRadio(page);
     return;
   }
 
   const _exhaustive: never = selection;
-  throw new NsDownloadError(`Invalid selection: ${_exhaustive as string}`);
+  throw new NsDownloadError(`Invalid selection: ${String(_exhaustive)}`);
 };
 
 export const downloadPdf = async (page: Page, outputPath: string): Promise<string> => {
