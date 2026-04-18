@@ -5,11 +5,11 @@ export {
   waitForTrips,
   extractTripsFromPage,
   processTrips,
-  parsePrice,
   type RawTrip,
   type Trip,
   type ExtractResult,
 } from './browser/trips';
+export { parsePrice, formatPriceEur } from './price';
 export {
   configureDownload,
   downloadPdf,

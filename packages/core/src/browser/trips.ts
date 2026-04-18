@@ -1,5 +1,6 @@
 import type { Page } from 'playwright';
 import { SELECTORS } from './selectors';
+import { parsePrice } from '../price';
 
 const EMPTY_STATE_TEXT = 'Er zijn geen resultaten voor de geselecteerde periode of kaart';
 
@@ -35,15 +36,6 @@ export const waitForTrips = async (page: Page): Promise<boolean> => {
   ]);
 
   return winner === 'trips';
-};
-
-export const parsePrice = (priceStr: string): number => {
-  const cleaned = priceStr
-    .replace(/\u00a0/g, '')
-    .replace('€', '')
-    .replace(',', '.')
-    .trim();
-  return parseFloat(cleaned) || 0;
 };
 
 export const extractTripsFromPage = async (page: Page): Promise<RawTrip[]> => {
