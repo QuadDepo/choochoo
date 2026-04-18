@@ -35,22 +35,31 @@ export const loginAndNavigate = async (
   await page.goto(targetUrl);
   await dismissCookieBanner(page);
 
-  if (!page.url().includes(LOGIN_DOMAIN)) return 'cached';
+  const cached = !page.url().includes(LOGIN_DOMAIN);
 
-  await page.locator(SEL_LOGIN_EMAIL).waitFor({ timeout: 15000 });
-  await page.locator(SEL_LOGIN_EMAIL).fill(email);
-  await page.locator(SEL_LOGIN_PASSWORD).fill(password);
-  await page.locator(SEL_LOGIN_SUBMIT).first().click();
+  if (!cached) {
+    await page.locator(SEL_LOGIN_EMAIL).waitFor({ timeout: 15000 });
+    await page.locator(SEL_LOGIN_EMAIL).fill(email);
+    await page.locator(SEL_LOGIN_PASSWORD).fill(password);
+    await page.locator(SEL_LOGIN_SUBMIT).first().click();
 
-  try {
-    await page.waitForURL(LOGGED_IN_URL, { timeout: 30000 });
-  } catch {
-    if ((await page.content()).includes(AKAMAI_BLOCK_TEXT)) {
-      throw new NsAuthError('Blocked by Akamai. Try headless: false or log in manually first.');
+    try {
+      await page.waitForURL(LOGGED_IN_URL, { timeout: 30000 });
+    } catch {
+      if ((await page.content()).includes(AKAMAI_BLOCK_TEXT)) {
+        throw new NsAuthError('Blocked by Akamai. Try headless: false or log in manually first.');
+      }
+      throw new NsAuthError('Login timed out. Check your credentials.');
     }
-    throw new NsAuthError('Login timed out. Check your credentials.');
+
+    await dismissCookieBanner(page);
   }
 
+  // SSO redirects drop the URL hash, so after auth NS lands on /mijnns#/dashboard
+  // even when we asked for /mijnns#/reishistorie. Re-navigate to the target so
+  // the SPA router picks up the hash fragment.
+  await page.goto(targetUrl);
   await dismissCookieBanner(page);
-  return 'fresh';
+
+  return cached ? 'cached' : 'fresh';
 };
