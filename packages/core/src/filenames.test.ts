@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { pdfFilename, tripsFilename } from './filenames';
+import { pdfFilename, tripsFilename, defaultPdfPath } from './filenames';
+import { DEFAULT_DOWNLOADS_DIR } from './config';
 
 const ISO_DATE = /\d{4}-\d{2}-\d{2}/;
 
@@ -22,5 +23,20 @@ describe('tripsFilename', () => {
     expect(tripsFilename('this-month')).toMatch(
       new RegExp(`^trips-this-month-${ISO_DATE.source}\\.json$`),
     );
+  });
+});
+
+describe('defaultPdfPath', () => {
+  it('joins the given downloadsDir with the pdf filename', () => {
+    const path = defaultPdfPath('this-month', '/tmp/custom');
+    expect(path).toMatch(
+      new RegExp(`^/tmp/custom/ns-declaratie-this-month-${ISO_DATE.source}\\.pdf$`),
+    );
+  });
+
+  it('falls back to DEFAULT_DOWNLOADS_DIR when no dir provided', () => {
+    const path = defaultPdfPath('this-month');
+    expect(path.startsWith(DEFAULT_DOWNLOADS_DIR)).toBe(true);
+    expect(path).toMatch(/\.pdf$/);
   });
 });

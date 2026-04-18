@@ -2,11 +2,24 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('node:fs', async () => {
   const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
-  return { ...actual, readFileSync: vi.fn() };
+  return {
+    ...actual,
+    readFileSync: vi.fn(),
+    writeFileSync: vi.fn(),
+    mkdirSync: vi.fn(),
+    existsSync: vi.fn(),
+  };
 });
 
-import { readFileSync } from 'node:fs';
-import { loadConfig, selectCard, type Card } from './config';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import {
+  loadConfig,
+  selectCard,
+  writeConfigTemplate,
+  CONFIG_DIR,
+  CONFIG_PATH,
+  type Card,
+} from './config';
 
 const enoent = (): never => {
   const err: NodeJS.ErrnoException = new Error('ENOENT');
@@ -16,6 +29,9 @@ const enoent = (): never => {
 
 beforeEach(() => {
   vi.mocked(readFileSync).mockImplementation(enoent);
+  vi.mocked(existsSync).mockReturnValue(false);
+  vi.mocked(writeFileSync).mockReset();
+  vi.mocked(mkdirSync).mockReset();
   vi.unstubAllEnvs();
   vi.stubEnv('NS_EMAIL', '');
   vi.stubEnv('NS_PASSWORD', '');
@@ -52,6 +68,23 @@ describe('loadConfig', () => {
     const cfg = loadConfig({ email: 'a', password: 'b' });
     expect(cfg.cards).toEqual([{ name: 'personal', id: 'uuid-1' }]);
   });
+
+  it('leaves downloadsDir undefined when not set', () => {
+    const cfg = loadConfig({ email: 'a', password: 'b' });
+    expect(cfg.downloadsDir).toBeUndefined();
+  });
+
+  it('reads downloadsDir from the config file', () => {
+    vi.mocked(readFileSync).mockReturnValue(JSON.stringify({ downloadsDir: '/custom/pdfs' }));
+    const cfg = loadConfig({ email: 'a', password: 'b' });
+    expect(cfg.downloadsDir).toBe('/custom/pdfs');
+  });
+
+  it('prefers options.downloadsDir over config file', () => {
+    vi.mocked(readFileSync).mockReturnValue(JSON.stringify({ downloadsDir: '/from/file' }));
+    const cfg = loadConfig({ email: 'a', password: 'b', downloadsDir: '/from/options' });
+    expect(cfg.downloadsDir).toBe('/from/options');
+  });
 });
 
 describe('selectCard', () => {
@@ -76,5 +109,35 @@ describe('selectCard', () => {
     expect(() => selectCard(cards, 'missing')).toThrow(
       /Card "missing" not found\. Available: personal, work/,
     );
+  });
+});
+
+describe('writeConfigTemplate', () => {
+  it('creates a template config when none exists', () => {
+    vi.mocked(existsSync).mockReturnValue(false);
+
+    const result = writeConfigTemplate();
+
+    expect(result).toEqual({ path: CONFIG_PATH, created: true });
+    expect(mkdirSync).toHaveBeenCalledWith(CONFIG_DIR, { recursive: true });
+    expect(writeFileSync).toHaveBeenCalledTimes(1);
+    const [writtenPath, body] = vi.mocked(writeFileSync).mock.calls[0]!;
+    expect(writtenPath).toBe(CONFIG_PATH);
+    const parsed = JSON.parse(body as string);
+    expect(parsed).toEqual({
+      email: '',
+      password: '',
+      cards: [{ name: 'personal', id: '' }],
+    });
+  });
+
+  it('does not overwrite when the config already exists', () => {
+    vi.mocked(existsSync).mockReturnValue(true);
+
+    const result = writeConfigTemplate();
+
+    expect(result).toEqual({ path: CONFIG_PATH, created: false });
+    expect(writeFileSync).not.toHaveBeenCalled();
+    expect(mkdirSync).not.toHaveBeenCalled();
   });
 });

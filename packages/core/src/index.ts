@@ -20,14 +20,17 @@ export {
 export {
   loadConfig,
   selectCard,
+  writeConfigTemplate,
   CONFIG_DIR,
-  CONFIG_FILE,
-  SESSION_FILE,
+  CONFIG_PATH,
+  SESSION_PATH,
+  DEFAULT_DOWNLOADS_DIR,
   type NsConfig,
   type ConfigOptions,
   type Card,
+  type WriteConfigResult,
 } from './config';
 export { buildHistoryUrl } from './urls';
 export { PERIODS, isPeriod, assertPeriod, type Period } from './periods';
-export { pdfFilename, tripsFilename } from './filenames';
+export { pdfFilename, tripsFilename, defaultPdfPath } from './filenames';
 export { groupTripsByDate, type TripGroup } from './trip-grouping';

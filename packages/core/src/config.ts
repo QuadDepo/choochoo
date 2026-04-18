@@ -1,10 +1,15 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { homedir } from 'node:os';
 
 export const CONFIG_DIR = join(homedir(), '.config', 'choochoo');
-export const CONFIG_FILE = 'config.json';
-export const SESSION_FILE = 'session.json';
+
+const CONFIG_FILE = 'config.json';
+const SESSION_FILE = 'session.json';
+
+export const CONFIG_PATH = join(CONFIG_DIR, CONFIG_FILE);
+export const SESSION_PATH = join(CONFIG_DIR, SESSION_FILE);
+export const DEFAULT_DOWNLOADS_DIR = join(CONFIG_DIR, 'downloads');
 
 export interface Card {
   name: string;
@@ -15,11 +20,14 @@ export interface NsConfig {
   email: string;
   password: string;
   cards: Card[];
+  /** Where PDF declarations are saved. Defaults to `~/.config/choochoo/downloads`. */
+  downloadsDir?: string;
 }
 
 export interface ConfigOptions {
   email?: string;
   password?: string;
+  downloadsDir?: string;
 }
 
 const tryReadJson = (path: string): Record<string, unknown> | null => {
@@ -33,7 +41,7 @@ const tryReadJson = (path: string): Record<string, unknown> | null => {
 
 const findConfig = (): Record<string, unknown> =>
   tryReadJson(resolve(process.cwd(), CONFIG_FILE))
-  ?? tryReadJson(join(CONFIG_DIR, CONFIG_FILE))
+  ?? tryReadJson(CONFIG_PATH)
   ?? {};
 
 export const loadConfig = (options: ConfigOptions = {}): NsConfig => {
@@ -44,14 +52,15 @@ export const loadConfig = (options: ConfigOptions = {}): NsConfig => {
 
   if (!email || !password) {
     throw new Error(
-      `NS credentials required. Set "email" and "password" in ${join(CONFIG_DIR, CONFIG_FILE)}, ` +
+      `NS credentials required. Set "email" and "password" in ${CONFIG_PATH}, ` +
       `or pass NS_EMAIL/NS_PASSWORD env vars.`
     );
   }
 
   const cards = (cfg.cards as Card[] | undefined) ?? [];
+  const downloadsDir = options.downloadsDir || (cfg.downloadsDir as string | undefined);
 
-  return { email, password, cards };
+  return { email, password, cards, ...(downloadsDir ? { downloadsDir } : {}) };
 };
 
 export const selectCard = (cards: Card[], name?: string): Card => {
@@ -68,4 +77,24 @@ export const selectCard = (cards: Card[], name?: string): Card => {
   }
 
   return cards[0]!;
+};
+
+export interface WriteConfigResult {
+  path: string;
+  created: boolean;
+}
+
+/** Writes a config.json template to CONFIG_PATH. Returns `created: false` if the file already exists. */
+export const writeConfigTemplate = (): WriteConfigResult => {
+  if (existsSync(CONFIG_PATH)) {
+    return { path: CONFIG_PATH, created: false };
+  }
+  const template: NsConfig = {
+    email: '',
+    password: '',
+    cards: [{ name: 'personal', id: '' }],
+  };
+  mkdirSync(CONFIG_DIR, { recursive: true });
+  writeFileSync(CONFIG_PATH, JSON.stringify(template, null, 2) + '\n');
+  return { path: CONFIG_PATH, created: true };
 };
