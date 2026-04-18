@@ -1,4 +1,3 @@
-import { resolve } from 'node:path';
 import { intro, outro, select, groupMultiselect, spinner, cancel, isCancel } from '@clack/prompts';
 import {
   loadConfig,
@@ -7,7 +6,7 @@ import {
   downloadPdf,
   extractTripsFromPage,
   processTrips,
-  pdfFilename,
+  defaultPdfPath,
   groupTripsByDate,
   type Period,
   type Trip,
@@ -55,7 +54,7 @@ export async function runInteractive(): Promise<void> {
   try {
     await withNsSession(
       { period, card: cardName },
-      async ({ page, period }) => {
+      async ({ page, period, config: sessionConfig }) => {
         const raw = await extractTripsFromPage(page);
         const result = processTrips(raw); // default: drops zero-cost (not declarable)
 
@@ -83,7 +82,7 @@ export async function runInteractive(): Promise<void> {
         progress.start('Configuring download');
         await configureDownload(page, picked);
         progress.message('Downloading PDF');
-        const outputPath = resolve(process.cwd(), 'downloads', pdfFilename(period));
+        const outputPath = defaultPdfPath(period, sessionConfig.downloadsDir);
         await downloadPdf(page, outputPath);
         progress.stop(`PDF saved: ${outputPath}`);
       },

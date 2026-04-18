@@ -1,5 +1,5 @@
-import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
-import { resolve, dirname, join } from 'node:path';
+import { writeFileSync, mkdirSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
 import { defineCommand, runMain } from 'citty';
 import {
   extractTripsFromPage,
@@ -7,9 +7,8 @@ import {
   configureDownload,
   downloadPdf,
   parseSelection,
-  pdfFilename,
-  CONFIG_DIR,
-  CONFIG_FILE,
+  defaultPdfPath,
+  writeConfigTemplate,
 } from '@choochoo/core';
 import { withNsSession } from './session';
 import { runInteractive } from './interactive';
@@ -35,19 +34,12 @@ const sharedArgs = {
 const init = defineCommand({
   meta: { name: 'init', description: 'Create a config file template at ~/.config/choochoo/config.json' },
   async run() {
-    const configPath = join(CONFIG_DIR, CONFIG_FILE);
-    if (existsSync(configPath)) {
-      console.log(`Config already exists at ${configPath}`);
-      return;
+    const { path, created } = writeConfigTemplate();
+    if (created) {
+      console.log(`Config created at ${path}\nFill in your NS.nl credentials and card ID.`);
+    } else {
+      console.log(`Config already exists at ${path}`);
     }
-    const template = {
-      email: '',
-      password: '',
-      cards: [{ name: 'personal', id: '' }],
-    };
-    mkdirSync(CONFIG_DIR, { recursive: true });
-    writeFileSync(configPath, JSON.stringify(template, null, 2) + '\n');
-    console.log(`Config created at ${configPath}\nFill in your NS.nl credentials and card ID.`);
   },
 });
 
@@ -97,10 +89,8 @@ const download = defineCommand({
   },
   async run({ args }) {
     const selection = parseSelection(args.select);
-    await withNsSession(args, async ({ page, period }) => {
-      const outputPath = args.output
-        ? resolve(args.output)
-        : resolve(process.cwd(), 'downloads', pdfFilename(period));
+    await withNsSession(args, async ({ page, period, config }) => {
+      const outputPath = args.output ? resolve(args.output) : defaultPdfPath(period, config.downloadsDir);
 
       await configureDownload(page, selection);
       await downloadPdf(page, outputPath);
