@@ -102,8 +102,15 @@ const download = defineCommand({
 
 const main = defineCommand({
   meta: { name: 'choochoo', description: 'NS.nl travel declaration automation' },
-  async run() {
-    await runInteractive();
+  args: {
+    headed: {
+      type: 'boolean',
+      default: false,
+      description: 'Show the browser window (for debugging)',
+    },
+  },
+  async run({ args }) {
+    await runInteractive({ headed: args.headed });
   },
   subCommands: { init, extract, download },
 });

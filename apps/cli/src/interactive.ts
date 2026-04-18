@@ -25,7 +25,11 @@ const formatRow = (trip: Trip): string => {
   return `${time} │ ${route} │ ${price}`;
 };
 
-export async function runInteractive(): Promise<void> {
+export interface InteractiveOptions {
+  headed?: boolean;
+}
+
+export async function runInteractive(options: InteractiveOptions = {}): Promise<void> {
   intro('choochoo — NS.nl travel declarations');
 
   const config = loadConfig();
@@ -54,7 +58,7 @@ export async function runInteractive(): Promise<void> {
 
   try {
     await withNsSession(
-      { period, card: cardName },
+      { period, card: cardName, headed: options.headed },
       async ({ page, period, config: sessionConfig }) => {
         const raw = await extractTripsFromPage(page);
         const result = processTrips(raw); // default: drops zero-cost (not declarable)
