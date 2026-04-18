@@ -29,3 +29,4 @@ export {
 export { buildHistoryUrl } from './urls';
 export { PERIODS, isPeriod, assertPeriod, type Period } from './periods';
 export { pdfFilename, tripsFilename } from './filenames';
+export { groupTripsByDate, type TripGroup } from './trip-grouping';
