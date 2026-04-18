@@ -8,6 +8,7 @@ import {
   processTrips,
   defaultPdfPath,
   groupTripsByDate,
+  formatPriceEur,
   type Period,
   type Trip,
 } from '@choochoo/core';
@@ -20,7 +21,7 @@ const PRICE_WIDTH = 7;
 const formatRow = (trip: Trip): string => {
   const time = trip.depTime.padEnd(TIME_WIDTH);
   const route = `${trip.from} → ${trip.to}`.padEnd(ROUTE_WIDTH).slice(0, ROUTE_WIDTH);
-  const price = `€${trip.priceEur.toFixed(2)}`.padStart(PRICE_WIDTH);
+  const price = formatPriceEur(trip.priceEur).padStart(PRICE_WIDTH);
   return `${time} │ ${route} │ ${price}`;
 };
 
@@ -63,7 +64,7 @@ export async function runInteractive(): Promise<void> {
           return;
         }
 
-        progress.stop(`${result.trips.length} trips, total €${result.totalEur.toFixed(2)}`);
+        progress.stop(`${result.trips.length} trips, total ${formatPriceEur(result.totalEur)}`);
 
         const options = Object.fromEntries(
           groupTripsByDate(result.trips).map((group) => [

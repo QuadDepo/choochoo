@@ -9,6 +9,7 @@ import {
   parseSelection,
   defaultPdfPath,
   writeConfigTemplate,
+  formatPriceEur,
 } from '@choochoo/core';
 import { withNsSession } from './session';
 import { runInteractive } from './interactive';
@@ -59,9 +60,9 @@ const extract = defineCommand({
 
       console.log(`\n${result.trips.length} trips (${result.excluded} zero-cost excluded)`);
       for (const trip of result.trips) {
-        console.log(`  ${String(trip.num).padStart(2)}  ${trip.date.padEnd(28)}  ${trip.from} → ${trip.to}  €${trip.priceEur.toFixed(2)}`);
+        console.log(`  ${String(trip.num).padStart(2)}  ${trip.date.padEnd(28)}  ${trip.from} → ${trip.to}  ${formatPriceEur(trip.priceEur)}`);
       }
-      console.log(`  Total: €${result.totalEur.toFixed(2)}\n`);
+      console.log(`  Total: ${formatPriceEur(result.totalEur)}\n`);
 
       if (args.json) {
         const jsonPath = resolve(args.json);
