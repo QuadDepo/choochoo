@@ -1,6 +1,6 @@
 export { detectChrome } from './browser/chrome';
 export { launchBrowser, type BrowserOptions, type BrowserSession } from './browser/launch';
-export { loginAndNavigate, NsAuthError, type Credentials } from './browser/auth';
+export { loginAndNavigate, NsAuthError, type Credentials, type AuthResult } from './browser/auth';
 export {
   waitForTrips,
   extractTripsFromPage,
@@ -22,6 +22,7 @@ export {
   selectCard,
   CONFIG_DIR,
   CONFIG_FILE,
+  SESSION_FILE,
   type NsConfig,
   type ConfigOptions,
   type Card,

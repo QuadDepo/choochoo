@@ -1,3 +1,5 @@
+import { existsSync, mkdirSync } from 'node:fs';
+import { join } from 'node:path';
 import type { Page } from 'playwright';
 import {
   launchBrowser,
@@ -7,7 +9,10 @@ import {
   buildHistoryUrl,
   waitForTrips,
   assertPeriod,
+  CONFIG_DIR,
+  SESSION_FILE,
   type Period,
+  type AuthResult,
 } from '@choochoo/core';
 
 export interface SessionArgs {
@@ -18,6 +23,7 @@ export interface SessionArgs {
 
 export interface SessionOptions {
   onNoTrips?: () => void | Promise<void>;
+  onAuthResult?: (result: AuthResult) => void | Promise<void>;
 }
 
 export async function withNsSession(
@@ -30,9 +36,16 @@ export async function withNsSession(
   const card = selectCard(config.cards, args.card);
   const targetUrl = buildHistoryUrl(card.id, period);
 
-  const { page, close } = await launchBrowser({ headless: !args.headed });
+  const sessionPath = join(CONFIG_DIR, SESSION_FILE);
+  const storageStatePath = existsSync(sessionPath) ? sessionPath : undefined;
+
+  const { page, context, close } = await launchBrowser({
+    headless: !args.headed,
+    storageStatePath,
+  });
   try {
-    await loginAndNavigate(page, config, targetUrl);
+    const authResult = await loginAndNavigate(page, config, targetUrl);
+    if (options.onAuthResult) await options.onAuthResult(authResult);
     const hasTrips = await waitForTrips(page);
     if (!hasTrips) {
       if (options.onNoTrips) {
@@ -40,9 +53,13 @@ export async function withNsSession(
       } else {
         console.log('No trips found for this period.');
       }
-      return;
+    } else {
+      await run({ page, period });
     }
-    await run({ page, period });
+
+    // Save the (possibly refreshed) cookies so the next run can skip login.
+    mkdirSync(CONFIG_DIR, { recursive: true });
+    await context.storageState({ path: sessionPath });
   } finally {
     await close();
   }

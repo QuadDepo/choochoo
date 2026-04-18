@@ -14,6 +14,9 @@ export interface Credentials {
   password: string;
 }
 
+/** How the navigation completed: `cached` skipped the login form; `fresh` filled it. */
+export type AuthResult = 'cached' | 'fresh';
+
 export class NsAuthError extends Error {
   name = 'NsAuthError';
 }
@@ -28,11 +31,11 @@ export const loginAndNavigate = async (
   page: Page,
   { email, password }: Credentials,
   targetUrl: string,
-): Promise<void> => {
+): Promise<AuthResult> => {
   await page.goto(targetUrl);
   await dismissCookieBanner(page);
 
-  if (!page.url().includes(LOGIN_DOMAIN)) return;
+  if (!page.url().includes(LOGIN_DOMAIN)) return 'cached';
 
   await page.locator(SEL_LOGIN_EMAIL).waitFor({ timeout: 15000 });
   await page.locator(SEL_LOGIN_EMAIL).fill(email);
@@ -49,4 +52,5 @@ export const loginAndNavigate = async (
   }
 
   await dismissCookieBanner(page);
+  return 'fresh';
 };

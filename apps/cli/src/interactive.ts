@@ -56,7 +56,6 @@ export async function runInteractive(): Promise<void> {
     await withNsSession(
       { period, card: cardName },
       async ({ page, period }) => {
-        progress.message('Extracting trips');
         const raw = await extractTripsFromPage(page);
         const result = processTrips(raw); // default: drops zero-cost (not declarable)
 
@@ -88,7 +87,12 @@ export async function runInteractive(): Promise<void> {
         await downloadPdf(page, outputPath);
         progress.stop(`PDF saved: ${outputPath}`);
       },
-      { onNoTrips: () => { progress.stop('No trips for this period'); } },
+      {
+        onAuthResult: (result) => {
+          progress.message(result === 'cached' ? 'Resumed previous session' : 'Logged in');
+        },
+        onNoTrips: () => { progress.stop('No trips for this period'); },
+      },
     );
   } catch (error) {
     progress.stop(`Error: ${(error as Error).message}`);

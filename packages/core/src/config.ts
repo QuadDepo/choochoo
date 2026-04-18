@@ -4,6 +4,7 @@ import { homedir } from 'node:os';
 
 export const CONFIG_DIR = join(homedir(), '.config', 'choochoo');
 export const CONFIG_FILE = 'config.json';
+export const SESSION_FILE = 'session.json';
 
 export interface Card {
   name: string;
