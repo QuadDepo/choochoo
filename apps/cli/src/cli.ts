@@ -1,25 +1,18 @@
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { resolve, dirname, join } from 'node:path';
 import { defineCommand, runMain } from 'citty';
-import type { Page } from 'playwright';
 import {
-  launchBrowser,
-  loginAndNavigate,
-  loadConfig,
-  selectCard,
-  buildHistoryUrl,
-  waitForTrips,
   extractTripsFromPage,
   processTrips,
   configureDownload,
   downloadPdf,
   parseSelection,
-  assertPeriod,
   pdfFilename,
   CONFIG_DIR,
   CONFIG_FILE,
-  type Period,
 } from '@choochoo/core';
+import { withNsSession } from './session';
+import { runInteractive } from './interactive';
 
 const sharedArgs = {
   period: {
@@ -38,35 +31,6 @@ const sharedArgs = {
     description: 'Show the browser window',
   },
 } as const;
-
-interface SessionArgs {
-  period?: string;
-  card?: string;
-  headed?: boolean;
-}
-
-async function withNsSession(
-  args: SessionArgs,
-  run: (ctx: { page: Page; period: Period }) => Promise<void>,
-): Promise<void> {
-  const period = assertPeriod(args.period ?? 'this-month');
-  const config = loadConfig();
-  const card = selectCard(config.cards, args.card);
-  const targetUrl = buildHistoryUrl(card.id, period);
-
-  const { page, close } = await launchBrowser({ headless: !args.headed });
-  try {
-    await loginAndNavigate(page, config, targetUrl);
-    const hasTrips = await waitForTrips(page);
-    if (!hasTrips) {
-      console.log('No trips found for this period.');
-      return;
-    }
-    await run({ page, period });
-  } finally {
-    await close();
-  }
-}
 
 const init = defineCommand({
   meta: { name: 'init', description: 'Create a config file template at ~/.config/choochoo/config.json' },
@@ -102,8 +66,8 @@ const extract = defineCommand({
       const result = processTrips(raw);
 
       console.log(`\n${result.trips.length} trips (${result.excluded} zero-cost excluded)`);
-      for (const t of result.trips) {
-        console.log(`  ${String(t.num).padStart(2)}  ${t.date.padEnd(28)}  ${t.from} → ${t.to}  €${t.priceEur.toFixed(2)}`);
+      for (const trip of result.trips) {
+        console.log(`  ${String(trip.num).padStart(2)}  ${trip.date.padEnd(28)}  ${trip.from} → ${trip.to}  €${trip.priceEur.toFixed(2)}`);
       }
       console.log(`  Total: €${result.totalEur.toFixed(2)}\n`);
 
@@ -147,6 +111,9 @@ const download = defineCommand({
 
 const main = defineCommand({
   meta: { name: 'choochoo', description: 'NS.nl travel declaration automation' },
+  async run() {
+    await runInteractive();
+  },
   subCommands: { init, extract, download },
 });
 

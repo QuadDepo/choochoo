@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@choochoo/core": "workspace:*",
+    "@clack/prompts": "^1.2.0",
     "citty": "^0.2.2",
     "playwright": "^1.59.1"
   },
