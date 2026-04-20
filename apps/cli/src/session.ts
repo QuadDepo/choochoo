@@ -15,13 +15,13 @@ import {
   type PeriodInput,
 } from '@choochoo/core';
 
-export interface SessionArgs {
+interface SessionArgs {
   period?: string;
   card?: string;
   headed?: boolean;
 }
 
-export interface SessionOptions {
+interface SessionOptions {
   onNoTrips?: () => void | Promise<void>;
   onAuthResult?: (result: AuthResult) => void | Promise<void>;
 }

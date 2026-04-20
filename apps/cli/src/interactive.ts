@@ -68,7 +68,7 @@ const promptForPeriod = async (): Promise<string | symbol> => {
   return periodFromRange(formatDMY(from), formatDMY(to));
 };
 
-export interface InteractiveOptions {
+interface InteractiveOptions {
   headed?: boolean;
 }
 

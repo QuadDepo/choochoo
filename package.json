@@ -6,9 +6,11 @@
     "dev": "turbo run dev",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "knip": "knip",
     "clean": "turbo run clean"
   },
   "devDependencies": {
+    "knip": "^6.5.0",
     "turbo": "^2.5.0",
     "typescript": "^5.9.3",
     "vitest": "^4.1.4"
