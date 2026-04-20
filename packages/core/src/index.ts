@@ -31,6 +31,15 @@ export {
   type WriteConfigResult,
 } from './config';
 export { buildHistoryUrl } from './urls';
-export { PERIODS, isPeriod, assertPeriod, type Period } from './periods';
+export {
+  PERIODS,
+  isPeriod,
+  isPeriodRange,
+  assertPeriod,
+  assertPeriodOrRange,
+  periodFromRange,
+  type Period,
+  type PeriodInput,
+} from './periods';
 export { pdfFilename, tripsFilename, defaultPdfPath } from './filenames';
 export { groupTripsByDate, type TripGroup } from './trip-grouping';

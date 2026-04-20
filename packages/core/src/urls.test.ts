@@ -21,4 +21,10 @@ describe('buildHistoryUrl', () => {
     expect(url).toContain(`card=${cardId}`);
     expect(url).toContain('period=past-year');
   });
+
+  it('accepts a custom range period string', () => {
+    expect(buildHistoryUrl(cardId, '01-02-2026-to-28-02-2026')).toBe(
+      `https://www.ns.nl/mijnns#/reishistorie?card=${cardId}&period=01-02-2026-to-28-02-2026`,
+    );
+  });
 });
