@@ -7,9 +7,13 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "knip": "knip",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "fix": "biome check --write .",
     "clean": "turbo run clean"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.12",
     "knip": "^6.5.0",
     "turbo": "^2.5.0",
     "typescript": "^5.9.3",
