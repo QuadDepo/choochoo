@@ -1,4 +1,4 @@
-import { intro, outro, select, groupMultiselect, spinner, cancel, isCancel } from '@clack/prompts';
+import { intro, outro, select, groupMultiselect, spinner, cancel, isCancel, date } from '@clack/prompts';
 import {
   loadConfig,
   PERIODS,
@@ -9,6 +9,7 @@ import {
   defaultPdfPath,
   groupTripsByDate,
   formatPriceEur,
+  periodFromRange,
   type Period,
   type Trip,
 } from '@choochoo/core';
@@ -23,6 +24,48 @@ const formatRow = (trip: Trip): string => {
   const route = `${trip.from} → ${trip.to}`.padEnd(ROUTE_WIDTH).slice(0, ROUTE_WIDTH);
   const price = formatPriceEur(trip.priceEur).padStart(PRICE_WIDTH);
   return `${time} │ ${route} │ ${price}`;
+};
+
+const CUSTOM_RANGE = '__custom__' as const;
+type PeriodChoice = Period | typeof CUSTOM_RANGE;
+
+const pad = (n: number) => String(n).padStart(2, '0');
+const formatDMY = (d: Date) => `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()}`;
+
+const promptForPeriod = async (): Promise<string | symbol> => {
+  const choice = await select<PeriodChoice>({
+    message: 'Period',
+    options: [
+      ...PERIODS.map((period) => ({ value: period, label: period })),
+      { value: CUSTOM_RANGE, label: 'Custom range…' },
+    ],
+    initialValue: 'this-month',
+  });
+  if (isCancel(choice)) return choice;
+  if (choice !== CUSTOM_RANGE) return choice;
+
+  const today = new Date();
+  const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+  const from = await date({
+    message: 'From date',
+    format: 'DMY',
+    initialValue: firstOfMonth,
+    maxDate: today,
+  });
+  if (isCancel(from)) return from;
+
+  const to = await date({
+    message: 'To date',
+    format: 'DMY',
+    initialValue: today,
+    minDate: startOfDay(from),
+    maxDate: today,
+  });
+  if (isCancel(to)) return to;
+
+  return periodFromRange(formatDMY(from), formatDMY(to));
 };
 
 export interface InteractiveOptions {
@@ -44,12 +87,8 @@ export async function runInteractive(options: InteractiveOptions = {}): Promise<
     cardName = picked;
   }
 
-  const period = await select<Period>({
-    message: 'Period',
-    options: PERIODS.map((period) => ({ value: period, label: period })),
-    initialValue: 'this-month',
-  });
-  if (isCancel(period)) return cancel('Aborted.');
+  const period = await promptForPeriod();
+  if (typeof period === 'symbol') return cancel('Aborted.');
 
   const progress = spinner();
   progress.start('Launching browser & logging in');
@@ -59,7 +98,7 @@ export async function runInteractive(options: InteractiveOptions = {}): Promise<
   try {
     await withNsSession(
       { period, card: cardName, headed: options.headed },
-      async ({ page, period, config: sessionConfig }) => {
+      async ({ page, period: resolvedPeriod, config: sessionConfig }) => {
         const raw = await extractTripsFromPage(page);
         const result = processTrips(raw); // default: drops zero-cost (not declarable)
 
@@ -70,7 +109,7 @@ export async function runInteractive(options: InteractiveOptions = {}): Promise<
 
         progress.stop(`${result.trips.length} trips, total ${formatPriceEur(result.totalEur)}`);
 
-        const options = Object.fromEntries(
+        const groupedOptions = Object.fromEntries(
           groupTripsByDate(result.trips).map((group) => [
             group.date,
             group.trips.map((trip) => ({ value: trip.num, label: formatRow(trip) })),
@@ -79,7 +118,7 @@ export async function runInteractive(options: InteractiveOptions = {}): Promise<
 
         const picked = await groupMultiselect<number>({
           message: 'Trips to include',
-          options,
+          options: groupedOptions,
           required: true,
         });
         if (isCancel(picked)) { cancel('Aborted.'); cancelled = true; return; }
@@ -87,7 +126,7 @@ export async function runInteractive(options: InteractiveOptions = {}): Promise<
         progress.start('Configuring download');
         await configureDownload(page, picked);
         progress.message('Downloading PDF');
-        const outputPath = defaultPdfPath(period, sessionConfig.downloadsDir);
+        const outputPath = defaultPdfPath(resolvedPeriod, sessionConfig.downloadsDir);
         await downloadPdf(page, outputPath);
         progress.stop(`PDF saved: ${outputPath}`);
       },
