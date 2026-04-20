@@ -74,12 +74,13 @@ const extract = defineCommand({
   },
   async run({ args }) {
     const period = resolvePeriod(args);
-    await withNsSession({ ...args, period }, async ({ page, period: resolvedPeriod }) => {
+    await withNsSession({ ...args, period }, async ({ page, period: resolvedPeriod, config }) => {
       const raw = await extractTripsFromPage(page);
       const result = processTrips(raw);
+      const tripsForDisplay = config.tripOrder === 'desc' ? result.trips : [...result.trips].reverse();
 
       console.log(`\n${result.trips.length} trips (${result.excluded} zero-cost excluded)`);
-      for (const trip of result.trips) {
+      for (const trip of tripsForDisplay) {
         console.log(
           `  ${String(trip.num).padStart(2)}  ${trip.date.padEnd(28)}  ${trip.from} → ${trip.to}  ${formatPriceEur(trip.priceEur)}`,
         );

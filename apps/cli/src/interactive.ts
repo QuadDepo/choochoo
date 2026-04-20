@@ -109,8 +109,13 @@ export async function runInteractive(options: InteractiveOptions = {}): Promise<
 
         progress.stop(`${result.trips.length} trips, total ${formatPriceEur(result.totalEur)}`);
 
+        const groups = groupTripsByDate(result.trips);
+        const orderedGroups =
+          sessionConfig.tripOrder === 'desc'
+            ? groups
+            : [...groups].reverse().map((group) => ({ ...group, trips: [...group.trips].reverse() }));
         const groupedOptions = Object.fromEntries(
-          groupTripsByDate(result.trips).map((group) => [
+          orderedGroups.map((group) => [
             group.date,
             group.trips.map((trip) => ({ value: trip.num, label: formatRow(trip) })),
           ]),
