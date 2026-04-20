@@ -1,13 +1,12 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createTestSession, type TestSession } from '../../test/helpers/browser';
 import { configureDownload, NsDownloadError } from './download';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const fixture = (name: string) =>
-  readFileSync(join(here, '..', '..', 'test', 'fixtures', `${name}.html`), 'utf8');
+const fixture = (name: string) => readFileSync(join(here, '..', '..', 'test', 'fixtures', `${name}.html`), 'utf8');
 
 let session: TestSession;
 
@@ -28,8 +27,7 @@ const checkboxStates = () =>
     (els as HTMLInputElement[]).map((e) => ({ id: e.id, checked: e.checked })),
   );
 
-const isChecked = (selector: string) =>
-  session.page.$eval(selector, (el) => (el as HTMLInputElement).checked);
+const isChecked = (selector: string) => session.page.$eval(selector, (el) => (el as HTMLInputElement).checked);
 
 describe('configureDownload (fixture)', () => {
   it('"all" mode clicks the downloadAllTransactions radio', async () => {

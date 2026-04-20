@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { parsePrice, formatPriceEur } from './price';
+import { describe, expect, it } from 'vitest';
+import { formatPriceEur, parsePrice } from './price';
 
 describe('parsePrice', () => {
   it('parses Dutch format with €, non-breaking space, comma decimal', () => {

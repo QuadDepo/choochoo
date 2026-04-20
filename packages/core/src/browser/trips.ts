@@ -1,6 +1,6 @@
 import type { Page } from 'playwright';
-import { SELECTORS } from './selectors';
 import { parsePrice } from '../price';
+import { SELECTORS } from './selectors';
 
 const EMPTY_STATE_TEXT = 'Er zijn geen resultaten voor de geselecteerde periode of kaart';
 
@@ -64,7 +64,10 @@ export const extractTripsFromPage = async (page: Page): Promise<RawTrip[]> => {
         date = headerEl?.shadowRoot?.textContent?.trim() ?? '';
         if (!date) {
           const allText = dayGroup.shadowRoot?.textContent ?? dayGroup.textContent ?? '';
-          const match = allText.replace(/\s+/g, ' ').trim().match(/([a-z]+ \d+ [a-z]+ \d+)/i);
+          const match = allText
+            .replace(/\s+/g, ' ')
+            .trim()
+            .match(/([a-z]+ \d+ [a-z]+ \d+)/i);
           if (match) date = match[1]!;
         }
       }

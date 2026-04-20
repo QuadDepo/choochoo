@@ -1,18 +1,18 @@
-import { intro, outro, select, groupMultiselect, spinner, cancel, isCancel, date } from '@clack/prompts';
 import {
-  loadConfig,
-  PERIODS,
   configureDownload,
+  defaultPdfPath,
   downloadPdf,
   extractTripsFromPage,
-  processTrips,
-  defaultPdfPath,
-  groupTripsByDate,
   formatPriceEur,
-  periodFromRange,
+  groupTripsByDate,
+  loadConfig,
+  PERIODS,
   type Period,
+  periodFromRange,
+  processTrips,
   type Trip,
 } from '@choochoo/core';
+import { cancel, date, groupMultiselect, intro, isCancel, outro, select, spinner } from '@clack/prompts';
 import { withNsSession } from './session';
 
 const TIME_WIDTH = 5;
@@ -121,7 +121,11 @@ export async function runInteractive(options: InteractiveOptions = {}): Promise<
           options: groupedOptions,
           required: true,
         });
-        if (isCancel(picked)) { cancel('Aborted.'); cancelled = true; return; }
+        if (isCancel(picked)) {
+          cancel('Aborted.');
+          cancelled = true;
+          return;
+        }
 
         progress.start('Configuring download');
         await configureDownload(page, picked);
@@ -134,7 +138,9 @@ export async function runInteractive(options: InteractiveOptions = {}): Promise<
         onAuthResult: (result) => {
           progress.message(result === 'cached' ? 'Resumed previous session' : 'Logged in');
         },
-        onNoTrips: () => { progress.stop('No trips for this period'); },
+        onNoTrips: () => {
+          progress.stop('No trips for this period');
+        },
       },
     );
   } catch (error) {

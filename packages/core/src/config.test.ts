@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('node:fs', async () => {
   const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
@@ -11,15 +11,8 @@ vi.mock('node:fs', async () => {
   };
 });
 
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
-import {
-  loadConfig,
-  selectCard,
-  writeConfigTemplate,
-  CONFIG_DIR,
-  CONFIG_PATH,
-  type Card,
-} from './config';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { type Card, CONFIG_DIR, CONFIG_PATH, loadConfig, selectCard, writeConfigTemplate } from './config';
 
 const enoent = (): never => {
   const err: NodeJS.ErrnoException = new Error('ENOENT');
@@ -62,9 +55,7 @@ describe('loadConfig', () => {
   });
 
   it('parses cards from a config file', () => {
-    vi.mocked(readFileSync).mockReturnValue(
-      JSON.stringify({ cards: [{ name: 'personal', id: 'uuid-1' }] }),
-    );
+    vi.mocked(readFileSync).mockReturnValue(JSON.stringify({ cards: [{ name: 'personal', id: 'uuid-1' }] }));
     const cfg = loadConfig({ email: 'a', password: 'b' });
     expect(cfg.cards).toEqual([{ name: 'personal', id: 'uuid-1' }]);
   });
@@ -106,9 +97,7 @@ describe('selectCard', () => {
   });
 
   it('throws when named card is not found, listing available names', () => {
-    expect(() => selectCard(cards, 'missing')).toThrow(
-      /Card "missing" not found\. Available: personal, work/,
-    );
+    expect(() => selectCard(cards, 'missing')).toThrow(/Card "missing" not found\. Available: personal, work/);
   });
 });
 

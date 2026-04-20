@@ -1,12 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import {
-  PERIODS,
-  isPeriod,
-  isPeriodRange,
-  assertPeriod,
-  assertPeriodOrRange,
-  periodFromRange,
-} from './periods';
+import { describe, expect, it } from 'vitest';
+import { assertPeriod, assertPeriodOrRange, isPeriod, isPeriodRange, PERIODS, periodFromRange } from './periods';
 
 describe('isPeriod', () => {
   it('returns true for valid periods', () => {
@@ -68,8 +61,9 @@ describe('periodFromRange', () => {
   });
 
   it('rejects when from is after to', () => {
-    expect(() => periodFromRange('01-03-2026', '01-02-2026'))
-      .toThrow(/"from" \(01-03-2026\) must be on or before "to" \(01-02-2026\)/);
+    expect(() => periodFromRange('01-03-2026', '01-02-2026')).toThrow(
+      /"from" \(01-03-2026\) must be on or before "to" \(01-02-2026\)/,
+    );
   });
 
   it('accepts same-day ranges', () => {
@@ -77,13 +71,11 @@ describe('periodFromRange', () => {
   });
 
   it('rejects from dates in the future', () => {
-    expect(() => periodFromRange('01-01-2099', '02-01-2099'))
-      .toThrow(/"from" \(01-01-2099\) cannot be in the future/);
+    expect(() => periodFromRange('01-01-2099', '02-01-2099')).toThrow(/"from" \(01-01-2099\) cannot be in the future/);
   });
 
   it('rejects to dates in the future', () => {
-    expect(() => periodFromRange('01-01-2020', '02-01-2099'))
-      .toThrow(/"to" \(02-01-2099\) cannot be in the future/);
+    expect(() => periodFromRange('01-01-2020', '02-01-2099')).toThrow(/"to" \(02-01-2099\) cannot be in the future/);
   });
 });
 

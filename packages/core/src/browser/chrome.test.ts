@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('node:fs', async () => {
   const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
@@ -9,8 +9,8 @@ vi.mock('node:child_process', async () => {
   return { ...actual, execSync: vi.fn() };
 });
 
-import { existsSync } from 'node:fs';
 import { execSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { detectChrome } from './chrome';
 
 const MAC_PATH = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
@@ -23,7 +23,9 @@ const setPlatform = (p: NodeJS.Platform) => {
 
 beforeEach(() => {
   vi.mocked(existsSync).mockReturnValue(false);
-  vi.mocked(execSync).mockImplementation(() => { throw new Error('not found'); });
+  vi.mocked(execSync).mockImplementation(() => {
+    throw new Error('not found');
+  });
   vi.unstubAllEnvs();
   vi.stubEnv('CHROME_PATH', '');
 });

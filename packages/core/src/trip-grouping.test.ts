@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { groupTripsByDate } from './trip-grouping';
+import { describe, expect, it } from 'vitest';
 import type { Trip } from './browser/trips';
+import { groupTripsByDate } from './trip-grouping';
 
 const makeTrip = (num: number, date: string): Trip => ({
   num,
@@ -24,8 +24,8 @@ describe('groupTripsByDate', () => {
     ];
     const groups = groupTripsByDate(trips);
     expect(groups).toHaveLength(2);
-    expect(groups[0]!.trips.map((trip) => trip.num)).toEqual([1, 2]);
-    expect(groups[1]!.trips.map((trip) => trip.num)).toEqual([3]);
+    expect(groups[0]?.trips.map((trip) => trip.num)).toEqual([1, 2]);
+    expect(groups[1]?.trips.map((trip) => trip.num)).toEqual([3]);
   });
 
   it('preserves first-seen order of dates', () => {
@@ -35,10 +35,7 @@ describe('groupTripsByDate', () => {
       makeTrip(3, 'vrijdag 5 januari 2024'),
     ];
     const groups = groupTripsByDate(trips);
-    expect(groups.map((group) => group.date)).toEqual([
-      'vrijdag 5 januari 2024',
-      'dinsdag 2 januari 2024',
-    ]);
+    expect(groups.map((group) => group.date)).toEqual(['vrijdag 5 januari 2024', 'dinsdag 2 januari 2024']);
   });
 
   it('returns empty array for no trips', () => {

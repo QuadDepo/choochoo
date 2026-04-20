@@ -1,8 +1,8 @@
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { Page } from 'playwright';
-import { SELECTORS } from './selectors';
 import { parsePrice } from '../price';
+import { SELECTORS } from './selectors';
 
 export type Selection = 'paid' | 'all' | number[];
 
@@ -36,21 +36,26 @@ const clickDeclaratiesRadio = async (page: Page) => {
 };
 
 const clickTripsByIndex = async (page: Page, nums: number[]) => {
-  await page.evaluate(({ sel, nums: tripNums }) => {
-    document.querySelectorAll<HTMLInputElement>(sel.tripCheckbox).forEach((cb, index) => {
-      if (tripNums.includes(index + 1) && !cb.checked) cb.click();
-    });
-  }, { sel: SELECTORS, nums });
+  await page.evaluate(
+    ({ sel, nums: tripNums }) => {
+      document.querySelectorAll<HTMLInputElement>(sel.tripCheckbox).forEach((cb, index) => {
+        if (tripNums.includes(index + 1) && !cb.checked) cb.click();
+      });
+    },
+    { sel: SELECTORS, nums },
+  );
 };
 
 /** Read price strings in DOM order so the real parsePrice can decide what's billable in Node. */
 const readPriceTexts = async (page: Page): Promise<string[]> =>
-  page.evaluate((sel) =>
-    Array.from(document.querySelectorAll(sel.tripCheckbox)).map((cb) => {
-      const container = cb.closest(sel.tripContainer);
-      return container?.querySelector(sel.tripPrice)?.textContent ?? '';
-    }),
-  SELECTORS);
+  page.evaluate(
+    (sel) =>
+      Array.from(document.querySelectorAll(sel.tripCheckbox)).map((cb) => {
+        const container = cb.closest(sel.tripContainer);
+        return container?.querySelector(sel.tripPrice)?.textContent ?? '';
+      }),
+    SELECTORS,
+  );
 
 export const configureDownload = async (page: Page, selection: Selection): Promise<void> => {
   await page.evaluate(() => window.scrollBy(0, 500));

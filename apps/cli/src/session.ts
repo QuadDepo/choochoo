@@ -1,19 +1,19 @@
 import { existsSync, mkdirSync } from 'node:fs';
-import type { Page } from 'playwright';
 import {
-  launchBrowser,
-  loginAndNavigate,
-  loadConfig,
-  selectCard,
-  buildHistoryUrl,
-  waitForTrips,
-  assertPeriodOrRange,
-  CONFIG_DIR,
-  SESSION_PATH,
-  type NsConfig,
   type AuthResult,
+  assertPeriodOrRange,
+  buildHistoryUrl,
+  CONFIG_DIR,
+  launchBrowser,
+  loadConfig,
+  loginAndNavigate,
+  type NsConfig,
   type PeriodInput,
+  SESSION_PATH,
+  selectCard,
+  waitForTrips,
 } from '@choochoo/core';
+import type { Page } from 'playwright';
 
 interface SessionArgs {
   period?: string;

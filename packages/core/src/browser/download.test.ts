@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { parseSelection, NsDownloadError } from './download';
+import { describe, expect, it } from 'vitest';
+import { NsDownloadError, parseSelection } from './download';
 
 describe('parseSelection', () => {
   it('returns "paid" verbatim', () => {
@@ -18,12 +18,9 @@ describe('parseSelection', () => {
     expect(parseSelection('1, 2 , 3')).toEqual([1, 2, 3]);
   });
 
-  it.each(['', '0', '-1', '1.5', '1,2,', 'abc', '1, ,3'])(
-    'throws NsDownloadError for invalid input %p',
-    (input) => {
-      expect(() => parseSelection(input)).toThrow(NsDownloadError);
-    },
-  );
+  it.each(['', '0', '-1', '1.5', '1,2,', 'abc', '1, ,3'])('throws NsDownloadError for invalid input %p', (input) => {
+    expect(() => parseSelection(input)).toThrow(NsDownloadError);
+  });
 
   it('throws error for zero (must be positive)', () => {
     expect(() => parseSelection('0')).toThrow(/Invalid trip number: "0"/);

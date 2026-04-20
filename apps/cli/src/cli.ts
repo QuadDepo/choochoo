@@ -1,26 +1,27 @@
-import { writeFileSync, mkdirSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
-import { defineCommand, runMain } from 'citty';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import {
-  extractTripsFromPage,
-  processTrips,
   configureDownload,
-  downloadPdf,
-  parseSelection,
   defaultPdfPath,
-  writeConfigTemplate,
+  downloadPdf,
+  extractTripsFromPage,
   formatPriceEur,
+  parseSelection,
   periodFromRange,
+  processTrips,
+  writeConfigTemplate,
 } from '@choochoo/core';
-import { withNsSession } from './session';
+import { defineCommand, runMain } from 'citty';
 import { runInteractive } from './interactive';
+import { withNsSession } from './session';
 
 const sharedArgs = {
   period: {
     type: 'positional',
     required: false,
     default: 'this-month',
-    description: 'Period: this-month | previous-month | past-year | last-7-days | everything (or use --from/--to for a custom range)',
+    description:
+      'Period: this-month | previous-month | past-year | last-7-days | everything (or use --from/--to for a custom range)',
   },
   card: {
     type: 'string',
@@ -79,14 +80,16 @@ const extract = defineCommand({
 
       console.log(`\n${result.trips.length} trips (${result.excluded} zero-cost excluded)`);
       for (const trip of result.trips) {
-        console.log(`  ${String(trip.num).padStart(2)}  ${trip.date.padEnd(28)}  ${trip.from} → ${trip.to}  ${formatPriceEur(trip.priceEur)}`);
+        console.log(
+          `  ${String(trip.num).padStart(2)}  ${trip.date.padEnd(28)}  ${trip.from} → ${trip.to}  ${formatPriceEur(trip.priceEur)}`,
+        );
       }
       console.log(`  Total: ${formatPriceEur(result.totalEur)}\n`);
 
       if (args.json) {
         const jsonPath = resolve(args.json);
         mkdirSync(dirname(jsonPath), { recursive: true });
-        writeFileSync(jsonPath, JSON.stringify({ ...result, period: resolvedPeriod }, null, 2) + '\n');
+        writeFileSync(jsonPath, `${JSON.stringify({ ...result, period: resolvedPeriod }, null, 2)}\n`);
         console.log(`JSON: ${jsonPath}\n`);
       }
     });

@@ -1,14 +1,8 @@
-import { parse, isValid, format, isAfter, startOfDay } from 'date-fns';
+import { format, isAfter, isValid, parse, startOfDay } from 'date-fns';
 
-export const PERIODS = [
-  'this-month',
-  'previous-month',
-  'past-year',
-  'last-7-days',
-  'everything',
-] as const;
+export const PERIODS = ['this-month', 'previous-month', 'past-year', 'last-7-days', 'everything'] as const;
 
-export type Period = typeof PERIODS[number];
+export type Period = (typeof PERIODS)[number];
 
 /**
  * Accepted period input: a predefined slug, or any other string (a custom NS range
@@ -17,8 +11,7 @@ export type Period = typeof PERIODS[number];
  */
 export type PeriodInput = Period | (string & {});
 
-export const isPeriod = (input: string): input is Period =>
-  (PERIODS as readonly string[]).includes(input);
+export const isPeriod = (input: string): input is Period => (PERIODS as readonly string[]).includes(input);
 
 export const assertPeriod = (input: string): Period => {
   if (!isPeriod(input)) {
@@ -67,6 +60,6 @@ export const assertPeriodOrRange = (input: string): PeriodInput => {
   }
   throw new Error(
     `Invalid period "${input}". Use one of: ${PERIODS.join(', ')}, ` +
-    `or a custom range in DD-MM-YYYY-to-DD-MM-YYYY format.`,
+      `or a custom range in DD-MM-YYYY-to-DD-MM-YYYY format.`,
   );
 };

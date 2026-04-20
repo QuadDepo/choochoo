@@ -1,45 +1,45 @@
+export { type AuthResult, type Credentials, loginAndNavigate, NsAuthError } from './browser/auth';
 export { detectChrome } from './browser/chrome';
-export { launchBrowser, type BrowserOptions, type BrowserSession } from './browser/launch';
-export { loginAndNavigate, NsAuthError, type Credentials, type AuthResult } from './browser/auth';
 export {
-  waitForTrips,
+  configureDownload,
+  downloadPdf,
+  NsDownloadError,
+  parseSelection,
+  type Selection,
+} from './browser/download';
+export { type BrowserOptions, type BrowserSession, launchBrowser } from './browser/launch';
+export {
+  type ExtractResult,
   extractTripsFromPage,
   processTrips,
   type RawTrip,
   type Trip,
-  type ExtractResult,
+  waitForTrips,
 } from './browser/trips';
-export { parsePrice, formatPriceEur } from './price';
 export {
-  configureDownload,
-  downloadPdf,
-  parseSelection,
-  NsDownloadError,
-  type Selection,
-} from './browser/download';
-export {
-  loadConfig,
-  selectCard,
-  writeConfigTemplate,
+  type Card,
   CONFIG_DIR,
   CONFIG_PATH,
-  SESSION_PATH,
-  DEFAULT_DOWNLOADS_DIR,
-  type NsConfig,
   type ConfigOptions,
-  type Card,
+  DEFAULT_DOWNLOADS_DIR,
+  loadConfig,
+  type NsConfig,
+  SESSION_PATH,
+  selectCard,
   type WriteConfigResult,
+  writeConfigTemplate,
 } from './config';
-export { buildHistoryUrl } from './urls';
+export { defaultPdfPath, pdfFilename, tripsFilename } from './filenames';
 export {
-  PERIODS,
-  isPeriod,
-  isPeriodRange,
   assertPeriod,
   assertPeriodOrRange,
-  periodFromRange,
+  isPeriod,
+  isPeriodRange,
+  PERIODS,
   type Period,
   type PeriodInput,
+  periodFromRange,
 } from './periods';
-export { pdfFilename, tripsFilename, defaultPdfPath } from './filenames';
+export { formatPriceEur, parsePrice } from './price';
 export { groupTripsByDate, type TripGroup } from './trip-grouping';
+export { buildHistoryUrl } from './urls';

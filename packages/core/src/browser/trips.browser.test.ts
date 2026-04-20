@@ -1,13 +1,12 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createTestSession, type TestSession } from '../../test/helpers/browser';
 import { extractTripsFromPage, processTrips, waitForTrips } from './trips';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const fixture = (name: string) =>
-  readFileSync(join(here, '..', '..', 'test', 'fixtures', `${name}.html`), 'utf8');
+const fixture = (name: string) => readFileSync(join(here, '..', '..', 'test', 'fixtures', `${name}.html`), 'utf8');
 
 let session: TestSession;
 
@@ -36,8 +35,8 @@ describe('extractTripsFromPage (fixture)', () => {
       price: '€\u00a05,50',
       date: 'dinsdag 2 januari 2024',
     });
-    expect(raw[3]!.price).toBe('€\u00a00,00');
-    expect(raw[3]!.date).toBe('vrijdag 5 januari 2024');
+    expect(raw[3]?.price).toBe('€\u00a00,00');
+    expect(raw[3]?.date).toBe('vrijdag 5 januari 2024');
   });
 
   it('processTrips filters zero-cost and totals correctly', async () => {

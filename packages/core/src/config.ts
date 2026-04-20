@@ -1,6 +1,6 @@
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
-import { resolve, join } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
+import { join, resolve } from 'node:path';
 
 export const CONFIG_DIR = join(homedir(), '.config', 'choochoo');
 
@@ -40,9 +40,7 @@ const tryReadJson = (path: string): Record<string, unknown> | null => {
 };
 
 const findConfig = (): Record<string, unknown> =>
-  tryReadJson(resolve(process.cwd(), CONFIG_FILE))
-  ?? tryReadJson(CONFIG_PATH)
-  ?? {};
+  tryReadJson(resolve(process.cwd(), CONFIG_FILE)) ?? tryReadJson(CONFIG_PATH) ?? {};
 
 export const loadConfig = (options: ConfigOptions = {}): NsConfig => {
   const cfg = findConfig();
@@ -53,7 +51,7 @@ export const loadConfig = (options: ConfigOptions = {}): NsConfig => {
   if (!email || !password) {
     throw new Error(
       `NS credentials required. Set "email" and "password" in ${CONFIG_PATH}, ` +
-      `or pass NS_EMAIL/NS_PASSWORD env vars.`
+        `or pass NS_EMAIL/NS_PASSWORD env vars.`,
     );
   }
 
@@ -95,6 +93,6 @@ export const writeConfigTemplate = (): WriteConfigResult => {
     cards: [{ name: 'personal', id: '' }],
   };
   mkdirSync(CONFIG_DIR, { recursive: true });
-  writeFileSync(CONFIG_PATH, JSON.stringify(template, null, 2) + '\n');
+  writeFileSync(CONFIG_PATH, `${JSON.stringify(template, null, 2)}\n`);
   return { path: CONFIG_PATH, created: true };
 };

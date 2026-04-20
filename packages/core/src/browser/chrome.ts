@@ -1,5 +1,5 @@
-import { existsSync } from 'node:fs';
 import { execSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 
 const CANDIDATES: Record<string, string[]> = {
   darwin: ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'],
