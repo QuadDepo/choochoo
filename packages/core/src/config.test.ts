@@ -76,6 +76,23 @@ describe('loadConfig', () => {
     const cfg = loadConfig({ email: 'a', password: 'b', downloadsDir: '/from/options' });
     expect(cfg.downloadsDir).toBe('/from/options');
   });
+
+  it("defaults tripOrder to 'asc'", () => {
+    const cfg = loadConfig({ email: 'a', password: 'b' });
+    expect(cfg.tripOrder).toBe('asc');
+  });
+
+  it("reads tripOrder 'desc' from the config file", () => {
+    vi.mocked(readFileSync).mockReturnValue(JSON.stringify({ tripOrder: 'desc' }));
+    const cfg = loadConfig({ email: 'a', password: 'b' });
+    expect(cfg.tripOrder).toBe('desc');
+  });
+
+  it("falls back to 'asc' when tripOrder is garbage", () => {
+    vi.mocked(readFileSync).mockReturnValue(JSON.stringify({ tripOrder: 'bogus' }));
+    const cfg = loadConfig({ email: 'a', password: 'b' });
+    expect(cfg.tripOrder).toBe('asc');
+  });
 });
 
 describe('selectCard', () => {
@@ -117,6 +134,7 @@ describe('writeConfigTemplate', () => {
       email: '',
       password: '',
       cards: [{ name: 'personal', id: '' }],
+      tripOrder: 'asc',
     });
   });
 

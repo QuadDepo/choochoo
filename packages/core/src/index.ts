@@ -26,6 +26,7 @@ export {
   type NsConfig,
   SESSION_PATH,
   selectCard,
+  type TripOrder,
   type WriteConfigResult,
   writeConfigTemplate,
 } from './config';

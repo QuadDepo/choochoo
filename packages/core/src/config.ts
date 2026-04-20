@@ -16,18 +16,23 @@ export interface Card {
   id: string;
 }
 
+export type TripOrder = 'asc' | 'desc';
+
 export interface NsConfig {
   email: string;
   password: string;
   cards: Card[];
   /** Where PDF declarations are saved. Defaults to `~/.config/choochoo/downloads`. */
   downloadsDir?: string;
+  /** Display order of trips in listings — 'asc' (oldest first, default) or 'desc' (NS's order, newest first). */
+  tripOrder: TripOrder;
 }
 
 export interface ConfigOptions {
   email?: string;
   password?: string;
   downloadsDir?: string;
+  tripOrder?: TripOrder;
 }
 
 const tryReadJson = (path: string): Record<string, unknown> | null => {
@@ -57,8 +62,10 @@ export const loadConfig = (options: ConfigOptions = {}): NsConfig => {
 
   const cards = (cfg.cards as Card[] | undefined) ?? [];
   const downloadsDir = options.downloadsDir || (cfg.downloadsDir as string | undefined);
+  const rawOrder = options.tripOrder ?? (cfg.tripOrder as unknown);
+  const tripOrder: TripOrder = rawOrder === 'desc' ? 'desc' : 'asc';
 
-  return { email, password, cards, ...(downloadsDir ? { downloadsDir } : {}) };
+  return { email, password, cards, tripOrder, ...(downloadsDir ? { downloadsDir } : {}) };
 };
 
 export const selectCard = (cards: Card[], name?: string): Card => {
@@ -91,6 +98,7 @@ export const writeConfigTemplate = (): WriteConfigResult => {
     email: '',
     password: '',
     cards: [{ name: 'personal', id: '' }],
+    tripOrder: 'asc',
   };
   mkdirSync(CONFIG_DIR, { recursive: true });
   writeFileSync(CONFIG_PATH, `${JSON.stringify(template, null, 2)}\n`);
