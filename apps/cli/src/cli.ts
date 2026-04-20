@@ -10,6 +10,7 @@ import {
   defaultPdfPath,
   writeConfigTemplate,
   formatPriceEur,
+  periodFromRange,
 } from '@choochoo/core';
 import { withNsSession } from './session';
 import { runInteractive } from './interactive';
@@ -19,7 +20,7 @@ const sharedArgs = {
     type: 'positional',
     required: false,
     default: 'this-month',
-    description: 'Period: this-month | previous-month | past-year | last-7-days | everything',
+    description: 'Period: this-month | previous-month | past-year | last-7-days | everything (or use --from/--to for a custom range)',
   },
   card: {
     type: 'string',
@@ -30,7 +31,24 @@ const sharedArgs = {
     default: false,
     description: 'Show the browser window',
   },
+  from: {
+    type: 'string',
+    description: 'Custom range start date (DD-MM-YYYY). Overrides the positional period. Requires --to.',
+  },
+  to: {
+    type: 'string',
+    description: 'Custom range end date (DD-MM-YYYY). Overrides the positional period. Requires --from.',
+  },
 } as const;
+
+/** Resolve the period: --from/--to override the positional period. Throws if only one of them is set. */
+const resolvePeriod = (args: { period?: string; from?: string; to?: string }): string => {
+  if (args.from && args.to) return periodFromRange(args.from, args.to);
+  if (args.from || args.to) {
+    throw new Error('--from and --to must both be provided for a custom range.');
+  }
+  return args.period ?? 'this-month';
+};
 
 const init = defineCommand({
   meta: { name: 'init', description: 'Create a config file template at ~/.config/choochoo/config.json' },
@@ -54,7 +72,8 @@ const extract = defineCommand({
     },
   },
   async run({ args }) {
-    await withNsSession(args, async ({ page, period }) => {
+    const period = resolvePeriod(args);
+    await withNsSession({ ...args, period }, async ({ page, period: resolvedPeriod }) => {
       const raw = await extractTripsFromPage(page);
       const result = processTrips(raw);
 
@@ -67,7 +86,7 @@ const extract = defineCommand({
       if (args.json) {
         const jsonPath = resolve(args.json);
         mkdirSync(dirname(jsonPath), { recursive: true });
-        writeFileSync(jsonPath, JSON.stringify({ ...result, period }, null, 2) + '\n');
+        writeFileSync(jsonPath, JSON.stringify({ ...result, period: resolvedPeriod }, null, 2) + '\n');
         console.log(`JSON: ${jsonPath}\n`);
       }
     });
@@ -85,13 +104,14 @@ const download = defineCommand({
     },
     output: {
       type: 'string',
-      description: 'Output path (defaults to ./downloads/ns-declaratie-<period>-<date>.pdf)',
+      description: 'Output path (defaults to <downloadsDir>/ns-declaratie-<period>-<date>.pdf)',
     },
   },
   async run({ args }) {
     const selection = parseSelection(args.select);
-    await withNsSession(args, async ({ page, period, config }) => {
-      const outputPath = args.output ? resolve(args.output) : defaultPdfPath(period, config.downloadsDir);
+    const period = resolvePeriod(args);
+    await withNsSession({ ...args, period }, async ({ page, period: resolvedPeriod, config }) => {
+      const outputPath = args.output ? resolve(args.output) : defaultPdfPath(resolvedPeriod, config.downloadsDir);
 
       await configureDownload(page, selection);
       await downloadPdf(page, outputPath);

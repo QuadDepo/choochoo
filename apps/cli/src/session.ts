@@ -7,12 +7,12 @@ import {
   selectCard,
   buildHistoryUrl,
   waitForTrips,
-  assertPeriod,
+  assertPeriodOrRange,
   CONFIG_DIR,
   SESSION_PATH,
   type NsConfig,
-  type Period,
   type AuthResult,
+  type PeriodInput,
 } from '@choochoo/core';
 
 export interface SessionArgs {
@@ -28,10 +28,10 @@ export interface SessionOptions {
 
 export async function withNsSession(
   args: SessionArgs,
-  run: (ctx: { page: Page; period: Period; config: NsConfig }) => Promise<void>,
+  run: (ctx: { page: Page; period: PeriodInput; config: NsConfig }) => Promise<void>,
   options: SessionOptions = {},
 ): Promise<void> {
-  const period = assertPeriod(args.period ?? 'this-month');
+  const period = assertPeriodOrRange(args.period ?? 'this-month');
   const config = loadConfig();
   const card = selectCard(config.cards, args.card);
   const targetUrl = buildHistoryUrl(card.id, period);
