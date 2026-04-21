@@ -24,7 +24,13 @@ export class NsAuthError extends Error {
 const dismissCookieBanner = async (page: Page) => {
   try {
     await page.locator(SEL_COOKIE_ACCEPT).click({ timeout: 3000 });
-  } catch {}
+  } catch (err) {
+    // Only swallow "banner not present / not visible" timeouts. Real errors
+    // (selector-engine bugs, navigation crashes) propagate.
+    if (!(err instanceof Error) || !err.message.includes('Timeout')) {
+      throw err;
+    }
+  }
 };
 
 export const loginAndNavigate = async (
