@@ -25,14 +25,20 @@ export const parseSelection = (input: string): Selection => {
 };
 
 const clickDeclaratiesRadio = async (page: Page) => {
-  await page.evaluate((sel) => {
+  const clicked = await page.evaluate((sel) => {
+    let count = 0;
     document.querySelectorAll<HTMLInputElement>(sel.allRadios).forEach((radio) => {
       const label = radio.closest('label') ?? document.querySelector(`label[for="${radio.id}"]`);
       if (label?.textContent?.toLowerCase().includes(sel.declaratiesLabel)) {
         radio.click();
+        count++;
       }
     });
+    return count;
   }, SELECTORS);
+  if (clicked === 0) {
+    throw new NsDownloadError('Could not find the declaration radio button.');
+  }
 };
 
 const clickTripsByIndex = async (page: Page, nums: number[]) => {

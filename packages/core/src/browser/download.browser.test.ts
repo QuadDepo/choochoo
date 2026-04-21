@@ -62,4 +62,9 @@ describe('configureDownload (fixture)', () => {
   it('throws NsDownloadError for an empty trip selection', async () => {
     await expect(configureDownload(session.page, [])).rejects.toThrow(NsDownloadError);
   });
+
+  it('throws NsDownloadError when the declaraties radio is missing', async () => {
+    await session.page.setContent(fixture('download-form-no-declaraties'));
+    await expect(configureDownload(session.page, [1])).rejects.toThrow(/declaration radio button/);
+  });
 });
