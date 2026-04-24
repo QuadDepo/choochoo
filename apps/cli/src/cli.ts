@@ -3,6 +3,7 @@ import { dirname, resolve } from 'node:path';
 import {
   configureDownload,
   defaultPdfPath,
+  defaultTripsPath,
   downloadPdf,
   extractTripsFromPage,
   formatPriceEur,
@@ -68,8 +69,13 @@ const extract = defineCommand({
   args: {
     ...sharedArgs,
     json: {
+      type: 'boolean',
+      default: false,
+      description: 'Save extracted trips as JSON (default path: <downloadsDir>/trips-<period>-<date>.json)',
+    },
+    output: {
       type: 'string',
-      description: 'Save extracted trips to this JSON path',
+      description: 'Override the JSON output path (implies --json)',
     },
   },
   async run({ args }) {
@@ -87,8 +93,9 @@ const extract = defineCommand({
       }
       console.log(`  Total: ${formatPriceEur(result.totalEur)}\n`);
 
-      if (args.json) {
-        const jsonPath = resolve(args.json);
+      const writeJson = args.json || !!args.output;
+      if (writeJson) {
+        const jsonPath = args.output ? resolve(args.output) : defaultTripsPath(resolvedPeriod, config.downloadsDir);
         mkdirSync(dirname(jsonPath), { recursive: true });
         writeFileSync(jsonPath, `${JSON.stringify({ ...result, period: resolvedPeriod }, null, 2)}\n`);
         console.log(`JSON: ${jsonPath}\n`);

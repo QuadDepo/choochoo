@@ -10,3 +10,7 @@ export const tripsFilename = (period: string): string => `trips-${period}-${toda
 /** Resolve the default PDF output path — `<downloadsDir>/<pdfFilename>`. */
 export const defaultPdfPath = (period: string, downloadsDir: string = DEFAULT_DOWNLOADS_DIR): string =>
   resolve(downloadsDir, pdfFilename(period));
+
+/** Resolve the default JSON output path — `<downloadsDir>/<tripsFilename>`. */
+export const defaultTripsPath = (period: string, downloadsDir: string = DEFAULT_DOWNLOADS_DIR): string =>
+  resolve(downloadsDir, tripsFilename(period));
