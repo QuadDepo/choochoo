@@ -43,7 +43,8 @@ export async function withNsSession(
     storageStatePath,
   });
   try {
-    const authResult = await loginAndNavigate(page, config, targetUrl);
+    const { email, password } = config;
+    const authResult = await loginAndNavigate(page, { email, password }, targetUrl);
     if (options.onAuthResult) await options.onAuthResult(authResult);
     const hasTrips = await waitForTrips(page);
     if (!hasTrips) {
