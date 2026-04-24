@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { Trip } from './browser/trips';
 import { groupTripsByDate } from './trip-grouping';
+import type { Trip } from './trips';
 
 const makeTrip = (num: number, date: string): Trip => ({
   num,

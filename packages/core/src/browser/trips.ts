@@ -1,30 +1,8 @@
 import type { Page } from 'playwright';
-import { parsePrice } from '../price';
+import type { RawTrip } from '../trips';
 import { SELECTORS } from './selectors';
 
 const EMPTY_STATE_TEXT = 'Er zijn geen resultaten voor de geselecteerde periode of kaart';
-
-export interface RawTrip {
-  num: number;
-  id: string;
-  date: string;
-  depTime: string;
-  arrTime: string;
-  from: string;
-  to: string;
-  carrier: string;
-  price: string;
-}
-
-export interface Trip extends RawTrip {
-  priceEur: number;
-}
-
-export interface ExtractResult {
-  trips: Trip[];
-  excluded: number;
-  totalEur: number;
-}
 
 export const waitForTrips = async (page: Page): Promise<boolean> => {
   const trips = page.locator(SELECTORS.tripCheckbox).first();
@@ -88,12 +66,4 @@ export const extractTripsFromPage = async (page: Page): Promise<RawTrip[]> => {
 
     return trips;
   }, SELECTORS);
-};
-
-export const processTrips = (rawTrips: RawTrip[], excludeZeroCost = true): ExtractResult => {
-  const trips: Trip[] = rawTrips.map((t) => ({ ...t, priceEur: parsePrice(t.price) }));
-  const billable = excludeZeroCost ? trips.filter((t) => t.priceEur > 0) : trips;
-  const excluded = trips.length - billable.length;
-  const totalEur = Math.round(billable.reduce((sum, t) => sum + t.priceEur, 0) * 100) / 100;
-  return { trips: billable, excluded, totalEur };
 };

@@ -1,4 +1,4 @@
-import type { Trip } from './browser/trips';
+import type { Trip } from './trips';
 
 export interface TripGroup {
   date: string;

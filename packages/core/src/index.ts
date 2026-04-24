@@ -8,14 +8,7 @@ export {
   type Selection,
 } from './browser/download';
 export { type BrowserOptions, type BrowserSession, launchBrowser } from './browser/launch';
-export {
-  type ExtractResult,
-  extractTripsFromPage,
-  processTrips,
-  type RawTrip,
-  type Trip,
-  waitForTrips,
-} from './browser/trips';
+export { extractTripsFromPage, waitForTrips } from './browser/trips';
 export {
   type Card,
   CONFIG_DIR,
@@ -30,7 +23,7 @@ export {
   type WriteConfigResult,
   writeConfigTemplate,
 } from './config';
-export { defaultPdfPath, pdfFilename, tripsFilename } from './filenames';
+export { defaultPdfPath, defaultTripsPath, pdfFilename, tripsFilename } from './filenames';
 export {
   assertPeriod,
   assertPeriodOrRange,
@@ -43,4 +36,5 @@ export {
 } from './periods';
 export { formatPriceEur, parsePrice } from './price';
 export { groupTripsByDate, type TripGroup } from './trip-grouping';
+export { type ExtractResult, processTrips, type RawTrip, type Trip } from './trips';
 export { buildHistoryUrl } from './urls';
