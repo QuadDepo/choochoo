@@ -63,36 +63,37 @@ const readPriceTexts = async (page: Page): Promise<string[]> =>
     SELECTORS,
   );
 
+const selectAllTrips = async (page: Page) => {
+  await page.evaluate((sel) => {
+    document.querySelector<HTMLInputElement>(sel.downloadAllRadio)?.click();
+  }, SELECTORS);
+};
+
+const selectPaidTrips = async (page: Page) => {
+  const priceTexts = await readPriceTexts(page);
+  const paidNums = priceTexts
+    .map((text, index) => ({ num: index + 1, eur: parsePrice(text) }))
+    .filter((trip) => trip.eur > 0)
+    .map((trip) => trip.num);
+
+  if (paidNums.length === 0) throw new NsDownloadError('No paid trips to select.');
+
+  await clickTripsByIndex(page, paidNums);
+  await clickDeclaratiesRadio(page);
+};
+
+const selectIndexedTrips = async (page: Page, nums: number[]) => {
+  if (nums.length === 0) throw new NsDownloadError('Empty trip selection.');
+  await clickTripsByIndex(page, nums);
+  await clickDeclaratiesRadio(page);
+};
+
 export const configureDownload = async (page: Page, selection: Selection): Promise<void> => {
   await page.evaluate(() => window.scrollBy(0, 500));
 
-  if (selection === 'all') {
-    await page.evaluate((sel) => {
-      document.querySelector<HTMLInputElement>(sel.downloadAllRadio)?.click();
-    }, SELECTORS);
-    return;
-  }
-
-  if (selection === 'paid') {
-    const priceTexts = await readPriceTexts(page);
-    const paidNums = priceTexts
-      .map((text, index) => ({ num: index + 1, eur: parsePrice(text) }))
-      .filter((trip) => trip.eur > 0)
-      .map((trip) => trip.num);
-
-    if (paidNums.length === 0) throw new NsDownloadError('No paid trips to select.');
-
-    await clickTripsByIndex(page, paidNums);
-    await clickDeclaratiesRadio(page);
-    return;
-  }
-
-  if (Array.isArray(selection)) {
-    if (selection.length === 0) throw new NsDownloadError('Empty trip selection.');
-    await clickTripsByIndex(page, selection);
-    await clickDeclaratiesRadio(page);
-    return;
-  }
+  if (selection === 'all') return selectAllTrips(page);
+  if (selection === 'paid') return selectPaidTrips(page);
+  if (Array.isArray(selection)) return selectIndexedTrips(page, selection);
 
   const _exhaustive: never = selection;
   throw new NsDownloadError(`Invalid selection: ${String(_exhaustive)}`);
