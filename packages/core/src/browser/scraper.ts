@@ -27,6 +27,7 @@ export const extractTripsFromPage = async (page: Page): Promise<RawTrip[]> => {
 
       const depEl = container.querySelector(sel.routeDeparture);
       const arrEl = container.querySelector(sel.routeArrival);
+      // NS uses web components (nes-route, etc.) — fields live inside shadow DOM.
       const depTime = depEl?.shadowRoot?.querySelector(sel.routeTime)?.getAttribute('datetime') ?? '';
       const from = depEl?.shadowRoot?.querySelector(sel.routeLocation)?.textContent?.trim() ?? '';
       const arrTime = arrEl?.shadowRoot?.querySelector(sel.routeTime)?.getAttribute('datetime') ?? '';

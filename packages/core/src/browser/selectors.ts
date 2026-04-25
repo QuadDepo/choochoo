@@ -1,4 +1,3 @@
-/** NS DOM selectors — shared between trips.ts and download.ts to keep them in sync. */
 export const SELECTORS = {
   tripCheckbox: "input[id^='declare-HB']",
   tripContainer: '.flexItems__container',

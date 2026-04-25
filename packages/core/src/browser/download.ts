@@ -30,6 +30,7 @@ const clickDeclaratiesRadio = async (page: Page) => {
     document.querySelectorAll<HTMLInputElement>(sel.allRadios).forEach((radio) => {
       const label = radio.closest('label') ?? document.querySelector(`label[for="${radio.id}"]`);
       if (label?.textContent?.toLowerCase().includes(sel.declaratiesLabel)) {
+        // .click() (not .checked = true) — Angular needs the event to fire change detection.
         radio.click();
         count++;
       }
@@ -106,6 +107,7 @@ export const downloadPdf = async (page: Page, outputPath: string): Promise<strin
 
   await page.evaluate((sel) => {
     const btn = document.querySelector(sel.downloadButton) as HTMLElement | null;
+    // nes-button is a web component — the real <button> lives in its shadow DOM.
     const inner = btn?.shadowRoot?.querySelector('button');
     (inner ?? btn)?.click();
   }, SELECTORS);
