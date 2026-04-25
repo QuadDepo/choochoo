@@ -13,7 +13,7 @@ import {
   selectCard,
   waitForTrips,
 } from '@choochoo/core';
-import type { Page } from 'playwright';
+import type { BrowserContext, Page } from 'playwright';
 
 interface SessionArgs {
   period?: string;
@@ -25,6 +25,20 @@ interface SessionOptions {
   onNoTrips?: () => void | Promise<void>;
   onAuthResult?: (result: AuthResult) => void | Promise<void>;
 }
+
+/** Save cookies so the next run can reuse the logged-in session. */
+const persistSessionState = async (context: BrowserContext): Promise<void> => {
+  mkdirSync(CONFIG_DIR, { recursive: true });
+  await context.storageState({ path: SESSION_PATH });
+};
+
+const handleNoTrips = async (options: SessionOptions): Promise<void> => {
+  if (options.onNoTrips) {
+    await options.onNoTrips();
+  } else {
+    console.log('No trips found for this period.');
+  }
+};
 
 export async function withNsSession(
   args: SessionArgs,
@@ -46,20 +60,15 @@ export async function withNsSession(
     const { email, password } = config;
     const authResult = await loginAndNavigate(page, { email, password }, targetUrl);
     if (options.onAuthResult) await options.onAuthResult(authResult);
+
     const hasTrips = await waitForTrips(page);
     if (!hasTrips) {
-      if (options.onNoTrips) {
-        await options.onNoTrips();
-      } else {
-        console.log('No trips found for this period.');
-      }
+      await handleNoTrips(options);
     } else {
       await run({ page, period, config });
     }
 
-    // Save the (possibly refreshed) cookies so the next run can skip login.
-    mkdirSync(CONFIG_DIR, { recursive: true });
-    await context.storageState({ path: SESSION_PATH });
+    await persistSessionState(context);
   } finally {
     await close();
   }
