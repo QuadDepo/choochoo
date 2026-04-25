@@ -33,9 +33,27 @@ const dismissCookieBanner = async (page: Page) => {
   }
 };
 
+const fillLoginForm = async (page: Page, { email, password }: Credentials): Promise<void> => {
+  await page.locator(SEL_LOGIN_EMAIL).waitFor({ timeout: 15000 });
+  await page.locator(SEL_LOGIN_EMAIL).fill(email);
+  await page.locator(SEL_LOGIN_PASSWORD).fill(password);
+  await page.locator(SEL_LOGIN_SUBMIT).first().click();
+};
+
+const waitForAuthCompletion = async (page: Page): Promise<void> => {
+  try {
+    await page.waitForURL(LOGGED_IN_URL, { timeout: 30000 });
+  } catch {
+    if ((await page.content()).includes(AKAMAI_BLOCK_TEXT)) {
+      throw new NsAuthError('Blocked by Akamai. Try headless: false or log in manually first.');
+    }
+    throw new NsAuthError('Login timed out. Check your credentials.');
+  }
+};
+
 export const loginAndNavigate = async (
   page: Page,
-  { email, password }: Credentials,
+  credentials: Credentials,
   targetUrl: string,
 ): Promise<AuthResult> => {
   await page.goto(targetUrl);
@@ -44,20 +62,8 @@ export const loginAndNavigate = async (
   const cached = !page.url().includes(LOGIN_DOMAIN);
 
   if (!cached) {
-    await page.locator(SEL_LOGIN_EMAIL).waitFor({ timeout: 15000 });
-    await page.locator(SEL_LOGIN_EMAIL).fill(email);
-    await page.locator(SEL_LOGIN_PASSWORD).fill(password);
-    await page.locator(SEL_LOGIN_SUBMIT).first().click();
-
-    try {
-      await page.waitForURL(LOGGED_IN_URL, { timeout: 30000 });
-    } catch {
-      if ((await page.content()).includes(AKAMAI_BLOCK_TEXT)) {
-        throw new NsAuthError('Blocked by Akamai. Try headless: false or log in manually first.');
-      }
-      throw new NsAuthError('Login timed out. Check your credentials.');
-    }
-
+    await fillLoginForm(page, credentials);
+    await waitForAuthCompletion(page);
     await dismissCookieBanner(page);
   }
 
