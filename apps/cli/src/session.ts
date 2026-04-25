@@ -3,6 +3,7 @@ import {
   type AuthResult,
   assertPeriodOrRange,
   buildHistoryUrl,
+  chooseCard,
   CONFIG_DIR,
   launchBrowser,
   loadConfig,
@@ -10,7 +11,6 @@ import {
   type NsConfig,
   type PeriodInput,
   SESSION_PATH,
-  selectCard,
   waitForTrips,
 } from '@choochoo/core';
 import type { BrowserContext, Page } from 'playwright';
@@ -47,7 +47,7 @@ export async function withNsSession(
 ): Promise<void> {
   const period = assertPeriodOrRange(args.period ?? 'this-month');
   const config = loadConfig();
-  const card = selectCard(config.cards, args.card);
+  const card = chooseCard(config.cards, args.card);
   const targetUrl = buildHistoryUrl(card.id, period);
 
   const storageStatePath = existsSync(SESSION_PATH) ? SESSION_PATH : undefined;

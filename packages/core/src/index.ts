@@ -8,9 +8,10 @@ export {
   type Selection,
 } from './browser/download';
 export { type BrowserOptions, type BrowserSession, launchBrowser } from './browser/launch';
-export { extractTripsFromPage, waitForTrips } from './browser/trips';
+export { extractTripsFromPage, waitForTrips } from './browser/scraper';
 export {
   type Card,
+  chooseCard,
   CONFIG_DIR,
   CONFIG_PATH,
   type ConfigOptions,
@@ -18,7 +19,6 @@ export {
   loadConfig,
   type NsConfig,
   SESSION_PATH,
-  selectCard,
   type TripOrder,
   type WriteConfigResult,
   writeConfigTemplate,
@@ -36,5 +36,5 @@ export {
 } from './periods';
 export { formatPriceEur, parsePrice } from './price';
 export { groupTripsByDate, type TripGroup } from './trip-grouping';
-export { type ExtractResult, processTrips, type RawTrip, type Trip } from './trips';
+export { type ExtractResult, processTrips, type RawTrip, type Trip } from './trip-model';
 export { buildHistoryUrl } from './urls';

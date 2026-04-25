@@ -68,7 +68,7 @@ export const loadConfig = (options: ConfigOptions = {}): NsConfig => {
   return { email, password, cards, tripOrder, ...(downloadsDir ? { downloadsDir } : {}) };
 };
 
-export const selectCard = (cards: Card[], name?: string): Card => {
+export const chooseCard = (cards: Card[], name?: string): Card => {
   if (cards.length === 0) {
     throw new Error('No cards configured.');
   }

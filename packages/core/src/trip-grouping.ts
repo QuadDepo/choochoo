@@ -1,4 +1,4 @@
-import type { Trip } from './trips';
+import type { Trip } from './trip-model';
 
 export interface TripGroup {
   date: string;

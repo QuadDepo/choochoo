@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { RawTrip } from './trips';
-import { processTrips } from './trips';
+import type { RawTrip } from './trip-model';
+import { processTrips } from './trip-model';
 
 const makeTrip = (num: number, price: string): RawTrip => ({
   num,

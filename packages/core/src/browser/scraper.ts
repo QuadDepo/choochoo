@@ -1,5 +1,5 @@
 import type { Page } from 'playwright';
-import type { RawTrip } from '../trips';
+import type { RawTrip } from '../trip-model';
 import { SELECTORS } from './selectors';
 
 const EMPTY_STATE_TEXT = 'Er zijn geen resultaten voor de geselecteerde periode of kaart';
