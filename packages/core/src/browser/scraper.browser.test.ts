@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createTestSession, type TestSession } from '../../test/helpers/browser';
-import { processTrips } from '../trip-model';
+import { processTrips } from '../trips/model';
 import { extractTripsFromPage, waitForTrips } from './scraper';
 
 const here = dirname(fileURLToPath(import.meta.url));

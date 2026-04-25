@@ -1,4 +1,4 @@
-import { parsePrice } from './price';
+import { parsePrice } from '../utils/price';
 
 export interface RawTrip {
   num: number;

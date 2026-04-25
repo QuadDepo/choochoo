@@ -23,7 +23,7 @@ export {
   type WriteConfigResult,
   writeConfigTemplate,
 } from './config';
-export { defaultPdfPath, defaultTripsPath, pdfFilename, tripsFilename } from './filenames';
+export { defaultPdfPath, defaultTripsPath, pdfFilename, tripsFilename } from './utils/filenames';
 export {
   assertPeriod,
   assertPeriodOrRange,
@@ -34,7 +34,7 @@ export {
   type PeriodInput,
   periodFromRange,
 } from './periods';
-export { formatPriceEur, parsePrice } from './price';
-export { groupTripsByDate, type TripGroup } from './trip-grouping';
-export { type ExtractResult, processTrips, type RawTrip, type Trip } from './trip-model';
+export { formatPriceEur, parsePrice } from './utils/price';
+export { groupTripsByDate, type TripGroup } from './trips/grouping';
+export { type ExtractResult, processTrips, type RawTrip, type Trip } from './trips/model';
 export { buildHistoryUrl } from './urls';

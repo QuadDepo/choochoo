@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_DOWNLOADS_DIR } from './config';
+import { DEFAULT_DOWNLOADS_DIR } from '../config';
 import { defaultPdfPath, pdfFilename, tripsFilename } from './filenames';
 
 const ISO_DATE = /\d{4}-\d{2}-\d{2}/;

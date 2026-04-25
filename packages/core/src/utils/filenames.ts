@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import { DEFAULT_DOWNLOADS_DIR } from './config';
+import { DEFAULT_DOWNLOADS_DIR } from '../config';
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
 

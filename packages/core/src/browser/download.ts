@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { Page } from 'playwright';
-import { parsePrice } from '../price';
+import { parsePrice } from '../utils/price';
 import { SELECTORS } from './selectors';
 
 export type Selection = 'paid' | 'all' | number[];
