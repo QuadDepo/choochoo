@@ -1,5 +1,6 @@
 {
   "name": "@choochoo/core",
+  "private": true,
   "version": "1.0.0",
   "description": "NS.nl travel declaration automation — Playwright API wrapper",
   "type": "module",
