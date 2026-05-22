@@ -11,10 +11,10 @@ export { type BrowserOptions, type BrowserSession, launchBrowser } from './brows
 export { extractTripsFromPage, waitForTrips } from './browser/scraper';
 export {
   type Card,
-  chooseCard,
   CONFIG_DIR,
   CONFIG_PATH,
   type ConfigOptions,
+  chooseCard,
   DEFAULT_DOWNLOADS_DIR,
   loadConfig,
   type NsConfig,
@@ -23,7 +23,6 @@ export {
   type WriteConfigResult,
   writeConfigTemplate,
 } from './config';
-export { defaultPdfPath, defaultTripsPath, pdfFilename, tripsFilename } from './utils/filenames';
 export {
   assertPeriod,
   assertPeriodOrRange,
@@ -34,7 +33,8 @@ export {
   type PeriodInput,
   periodFromRange,
 } from './periods';
-export { formatPriceEur, parsePrice } from './utils/price';
 export { groupTripsByDate, type TripGroup } from './trips/grouping';
 export { type ExtractResult, processTrips, type RawTrip, type Trip } from './trips/model';
 export { buildHistoryUrl } from './urls';
+export { defaultPdfPath, defaultTripsPath, pdfFilename, tripsFilename } from './utils/filenames';
+export { formatPriceEur, parsePrice } from './utils/price';

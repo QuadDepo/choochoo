@@ -12,7 +12,7 @@ vi.mock('node:fs', async () => {
 });
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { type Card, CONFIG_DIR, CONFIG_PATH, loadConfig, chooseCard, writeConfigTemplate } from './config';
+import { type Card, CONFIG_DIR, CONFIG_PATH, chooseCard, loadConfig, writeConfigTemplate } from './config';
 
 const enoent = (): never => {
   const err: NodeJS.ErrnoException = new Error('ENOENT');
