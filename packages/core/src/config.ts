@@ -120,8 +120,9 @@ export const writeConfigTemplate = (): WriteConfigResult => {
     cards: [{ name: 'personal', id: '' }],
     tripOrder: 'asc',
   };
-  mkdirSync(CONFIG_DIR, { recursive: true });
-  // 0600 — plaintext NS credentials live here; keep it owner-readable only.
+  // 0700 dir + 0600 file — plaintext NS credentials and session cookies live
+  // here; keep both owner-only so other users on the host can't traverse in.
+  mkdirSync(CONFIG_DIR, { recursive: true, mode: 0o700 });
   writeFileSync(CONFIG_PATH, `${JSON.stringify(template, null, 2)}\n`, { mode: 0o600 });
   return { path: CONFIG_PATH, created: true };
 };

@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync } from 'node:fs';
 import {
   type AuthResult,
   assertPeriodOrRange,
@@ -28,8 +28,10 @@ interface SessionOptions {
 
 /** Save cookies so the next run can reuse the logged-in session. */
 const persistSessionState = async (context: BrowserContext): Promise<void> => {
-  mkdirSync(CONFIG_DIR, { recursive: true });
+  // Cookies are credentials too — keep dir + file owner-only (0700 / 0600).
+  mkdirSync(CONFIG_DIR, { recursive: true, mode: 0o700 });
   await context.storageState({ path: SESSION_PATH });
+  chmodSync(SESSION_PATH, 0o600);
 };
 
 const handleNoTrips = async (options: SessionOptions): Promise<void> => {

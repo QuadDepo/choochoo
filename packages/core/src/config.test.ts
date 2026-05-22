@@ -145,7 +145,7 @@ describe('writeConfigTemplate', () => {
     const result = writeConfigTemplate();
 
     expect(result).toEqual({ path: CONFIG_PATH, created: true });
-    expect(mkdirSync).toHaveBeenCalledWith(CONFIG_DIR, { recursive: true });
+    expect(mkdirSync).toHaveBeenCalledWith(CONFIG_DIR, { recursive: true, mode: 0o700 });
     expect(writeFileSync).toHaveBeenCalledTimes(1);
     const call = vi.mocked(writeFileSync).mock.calls[0];
     if (!call) throw new Error('expected writeFileSync to have been called');
