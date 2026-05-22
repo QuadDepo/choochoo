@@ -61,6 +61,11 @@ export const loadConfig = (options: ConfigOptions = {}): NsConfig => {
   }
 
   const cards = (cfg.cards as Card[] | undefined) ?? [];
+  for (const card of cards) {
+    if (!card.id) {
+      throw new Error(`Card "${card.name}" is missing required "id" field. Find it in NS dashboard URL.`);
+    }
+  }
   const downloadsDir = options.downloadsDir || (cfg.downloadsDir as string | undefined);
   const rawOrder = options.tripOrder ?? (cfg.tripOrder as unknown);
   const tripOrder: TripOrder = rawOrder === 'desc' ? 'desc' : 'asc';
