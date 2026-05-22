@@ -79,7 +79,14 @@ export const loadConfig = (options: ConfigOptions = {}): NsConfig => {
   });
   const downloadsDir = options.downloadsDir || (cfg.downloadsDir as string | undefined);
   const rawOrder = options.tripOrder ?? (cfg.tripOrder as unknown);
-  const tripOrder: TripOrder = rawOrder === 'desc' ? 'desc' : 'asc';
+  let tripOrder: TripOrder;
+  if (rawOrder === undefined) {
+    tripOrder = 'asc';
+  } else if (rawOrder === 'asc' || rawOrder === 'desc') {
+    tripOrder = rawOrder;
+  } else {
+    throw new Error(`Config "tripOrder" must be "asc" or "desc", got ${JSON.stringify(rawOrder)}.`);
+  }
 
   return { email, password, cards, tripOrder, ...(downloadsDir ? { downloadsDir } : {}) };
 };

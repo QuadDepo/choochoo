@@ -108,10 +108,9 @@ describe('loadConfig', () => {
     expect(cfg.tripOrder).toBe('desc');
   });
 
-  it("falls back to 'asc' when tripOrder is garbage", () => {
+  it('throws when tripOrder is not "asc" or "desc"', () => {
     vi.mocked(readFileSync).mockReturnValue(JSON.stringify({ tripOrder: 'bogus' }));
-    const cfg = loadConfig({ email: 'a', password: 'b' });
-    expect(cfg.tripOrder).toBe('asc');
+    expect(() => loadConfig({ email: 'a', password: 'b' })).toThrow(/tripOrder.*asc.*desc/);
   });
 });
 
