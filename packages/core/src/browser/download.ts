@@ -105,12 +105,19 @@ export const downloadPdf = async (page: Page, outputPath: string): Promise<strin
 
   const downloadPromise = page.waitForEvent('download', { timeout: 30000 });
 
-  await page.evaluate((sel) => {
+  const clicked = await page.evaluate((sel) => {
     const btn = document.querySelector(sel.downloadButton) as HTMLElement | null;
     // nes-button is a web component — the real <button> lives in its shadow DOM.
-    const inner = btn?.shadowRoot?.querySelector('button');
-    (inner ?? btn)?.click();
+    const inner = btn?.shadowRoot?.querySelector('button') as HTMLElement | null;
+    const target = inner ?? btn;
+    if (!target) return false;
+    target.click();
+    return true;
   }, SELECTORS);
+
+  if (!clicked) {
+    throw new NsDownloadError('Download button not found');
+  }
 
   const download = await downloadPromise;
   await download.saveAs(outputPath);
