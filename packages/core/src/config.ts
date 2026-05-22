@@ -81,7 +81,11 @@ export const chooseCard = (cards: Card[], name?: string): Card => {
     return card;
   }
 
-  return cards[0]!;
+  const first = cards[0];
+  if (!first) {
+    throw new Error('No cards configured.');
+  }
+  return first;
 };
 
 export interface WriteConfigResult {
