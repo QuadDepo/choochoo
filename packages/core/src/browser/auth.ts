@@ -1,7 +1,7 @@
 import { errors, type Page } from 'playwright';
 
 const SEL_COOKIE_ACCEPT = 'button:has-text("Akkoord")';
-const SEL_LOGIN_EMAIL = 'input[type="email"], input[name*="mail"]';
+const SEL_LOGIN_EMAIL = 'input[type="email"]';
 const SEL_LOGIN_PASSWORD = 'input[type="password"]';
 const SEL_LOGIN_SUBMIT = 'button:has-text("Inloggen"), input[type="submit"], button[type="submit"]';
 
