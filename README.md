@@ -37,7 +37,7 @@ choochoo extract --period this-month
 choochoo download --period this-month --select paid
 ```
 
-Available periods: `this-month`, `last-month`, `past-year`, `last-7-days`.
+Available periods: `this-month`, `previous-month`, `past-year`, `last-7-days`.
 
 Selection modes for `download`: `paid` (non-zero-cost trips, default), `all`, or a
 comma-separated list of trip numbers like `1,2,3`.
