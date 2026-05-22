@@ -7,7 +7,9 @@ const SEL_LOGIN_SUBMIT = 'button:has-text("Inloggen"), input[type="submit"], but
 
 const LOGIN_DOMAIN = 'login.ns.nl';
 const LOGGED_IN_URL = /mijnns|ns\.nl(?!.*login)/;
-const AKAMAI_BLOCK_TEXT = 'Access Denied';
+// Akamai block pages vary by locale and template; the "Reference #..." footer
+// is the most reliable signature, with localized titles as a backup.
+const AKAMAI_BLOCK_PATTERN = /access denied|toegang geweigerd|verzoek geweigerd|reference\s*#\s*[0-9a-f.]+/i;
 
 export interface Credentials {
   email: string;
@@ -44,7 +46,7 @@ const waitForAuthCompletion = async (page: Page): Promise<void> => {
   try {
     await page.waitForURL(LOGGED_IN_URL, { timeout: 30000 });
   } catch {
-    if ((await page.content()).includes(AKAMAI_BLOCK_TEXT)) {
+    if (AKAMAI_BLOCK_PATTERN.test(await page.content())) {
       throw new NsAuthError('Blocked by Akamai. Try headless: false or log in manually first.');
     }
     throw new NsAuthError('Login timed out. Check your credentials.');
