@@ -8,20 +8,16 @@ export const waitForTrips = async (page: Page): Promise<boolean> => {
   const trips = page.locator(SELECTORS.tripCheckbox).first();
   const empty = page.getByText(EMPTY_STATE_TEXT);
 
-  // The losing branch of Promise.race continues running and would reject as an
+  // The losing branch of Promise.any continues running and would reject as an
   // unhandled rejection — swallow its error so only the winner is observable.
-  const winner = await Promise.race([
-    trips
-      .waitFor({ timeout: 15000 })
-      .then(() => 'trips' as const)
-      .catch(() => 'trips-failed' as const),
-    empty
-      .waitFor({ timeout: 15000 })
-      .then(() => 'empty' as const)
-      .catch(() => 'empty-failed' as const),
-  ]);
-
-  return winner === 'trips';
+  try {
+    return await Promise.any([
+      trips.waitFor({ timeout: 15000 }).then(() => true),
+      empty.waitFor({ timeout: 15000 }).then(() => false),
+    ]);
+  } catch {
+    throw new Error('Could not determine trip list state — page may have changed or failed to load');
+  }
 };
 
 export const extractTripsFromPage = async (page: Page): Promise<RawTrip[]> => {
