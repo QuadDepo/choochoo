@@ -54,8 +54,11 @@ export const assertPeriodOrRange = (input: string): PeriodInput => {
   if (isPeriod(input)) return input;
   if (isPeriodRange(input)) {
     // Fully validate calendar correctness + future/from<=to via periodFromRange.
-    const parts = input.split('-to-');
-    periodFromRange(parts[0]!, parts[1]!);
+    const [from, to] = input.split('-to-');
+    if (!from || !to) {
+      throw new Error(`Invalid range "${input}". Expected DD-MM-YYYY-to-DD-MM-YYYY.`);
+    }
+    periodFromRange(from, to);
     return input;
   }
   throw new Error(
