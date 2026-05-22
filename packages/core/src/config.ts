@@ -105,6 +105,7 @@ export const writeConfigTemplate = (): WriteConfigResult => {
     tripOrder: 'asc',
   };
   mkdirSync(CONFIG_DIR, { recursive: true });
-  writeFileSync(CONFIG_PATH, `${JSON.stringify(template, null, 2)}\n`);
+  // 0600 — plaintext NS credentials live here; keep it owner-readable only.
+  writeFileSync(CONFIG_PATH, `${JSON.stringify(template, null, 2)}\n`, { mode: 0o600 });
   return { path: CONFIG_PATH, created: true };
 };
