@@ -13,6 +13,7 @@ import {
   writeConfigTemplate,
 } from '@choochoo/core';
 import { defineCommand, runMain } from 'citty';
+import pkg from '../package.json' with { type: 'json' };
 import { runInteractive } from './interactive';
 import { withNsSession } from './session';
 
@@ -132,7 +133,7 @@ const download = defineCommand({
 });
 
 const main = defineCommand({
-  meta: { name: 'choochoo', description: 'NS.nl travel declaration automation' },
+  meta: { name: 'choochoo', version: pkg.version, description: 'NS.nl travel declaration automation' },
   args: {
     headed: {
       type: 'boolean',
