@@ -10,8 +10,11 @@ Dutch NS railway expense declaration automation via Playwright.
 ## Install
 
 ```sh
-npm i -g choochoo
+npm i -g @choochoo/cli
 ```
+
+The package is published under the `@choochoo` scope; the installed binary is
+`choochoo`.
 
 ## Quick start
 
@@ -54,6 +57,18 @@ that file instead of your real one — prefer running from a neutral directory,
 or remove the local file. The config holds your NS email and password in
 plaintext (written with `0600` permissions); treat it as a secret and only use
 it on a trusted machine.
+
+## Project structure
+
+choochoo is a Turborepo monorepo:
+
+```
+apps/cli/        # Published CLI — @choochoo/cli
+packages/core/   # Internal Playwright wrapper — @choochoo/core (private)
+```
+
+`@choochoo/core` is bundled into the CLI at build time (via tsup `noExternal`)
+and is not published. Only `@choochoo/cli` is consumed from npm.
 
 ## License
 
