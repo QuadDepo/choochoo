@@ -1,7 +1,9 @@
 import { resolve } from 'node:path';
+import { format } from 'date-fns';
 import { DEFAULT_DOWNLOADS_DIR } from '../config';
 
-const todayISO = () => new Date().toISOString().slice(0, 10);
+// Local date — UTC slicing rolls over near midnight in CET and stamps yesterday's file.
+const todayISO = () => format(new Date(), 'yyyy-MM-dd');
 
 export const pdfFilename = (period: string): string => `ns-declaratie-${period}-${todayISO()}.pdf`;
 
