@@ -1,4 +1,4 @@
-import type { Page } from 'playwright';
+import { errors, type Page } from 'playwright';
 
 const SEL_COOKIE_ACCEPT = 'button:has-text("Akkoord")';
 const SEL_LOGIN_EMAIL = 'input[type="email"], input[name*="mail"]';
@@ -27,7 +27,7 @@ const dismissCookieBanner = async (page: Page) => {
   } catch (err) {
     // Only swallow "banner not present / not visible" timeouts. Real errors
     // (selector-engine bugs, navigation crashes) propagate.
-    if (!(err instanceof Error) || !err.message.includes('Timeout')) {
+    if (!(err instanceof errors.TimeoutError)) {
       throw err;
     }
   }
