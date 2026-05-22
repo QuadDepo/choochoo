@@ -127,7 +127,9 @@ describe('writeConfigTemplate', () => {
     expect(result).toEqual({ path: CONFIG_PATH, created: true });
     expect(mkdirSync).toHaveBeenCalledWith(CONFIG_DIR, { recursive: true });
     expect(writeFileSync).toHaveBeenCalledTimes(1);
-    const [writtenPath, body] = vi.mocked(writeFileSync).mock.calls[0]!;
+    const call = vi.mocked(writeFileSync).mock.calls[0];
+    if (!call) throw new Error('expected writeFileSync to have been called');
+    const [writtenPath, body] = call;
     expect(writtenPath).toBe(CONFIG_PATH);
     const parsed = JSON.parse(body as string);
     expect(parsed).toEqual({
