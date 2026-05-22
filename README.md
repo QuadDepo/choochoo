@@ -45,6 +45,16 @@ NS credentials are stored as plaintext in `~/.config/choochoo/config.json`. Only
 run choochoo on trusted machines and ensure the config file has restrictive
 permissions.
 
+### Configuration file location
+
+choochoo loads config from `./config.json` in the current working directory if
+present, otherwise falls back to `~/.config/choochoo/config.json`. Running
+`choochoo` from a directory containing a stray `config.json` will silently use
+that file instead of your real one — prefer running from a neutral directory,
+or remove the local file. The config holds your NS email and password in
+plaintext (written with `0600` permissions); treat it as a secret and only use
+it on a trusted machine.
+
 ## License
 
 MIT
