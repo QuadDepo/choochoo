@@ -4,7 +4,14 @@ export const parsePrice = (priceStr: string): number => {
     .replace('€', '')
     .replace(',', '.')
     .trim();
-  return parseFloat(cleaned) || 0;
+  const parsed = parseFloat(cleaned);
+  if (Number.isNaN(parsed)) {
+    if (priceStr !== '') {
+      console.warn(`parsePrice: could not parse "${priceStr}"`);
+    }
+    return 0;
+  }
+  return parsed;
 };
 
 /** Format a euro amount for display as `€N.NN`. */

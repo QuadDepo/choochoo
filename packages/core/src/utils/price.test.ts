@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { formatPriceEur, parsePrice } from './price';
 
 describe('parsePrice', () => {
@@ -20,6 +20,20 @@ describe('parsePrice', () => {
 
   it('returns 0 for unparseable input', () => {
     expect(parsePrice('?')).toBe(0);
+  });
+
+  it('warns when a non-empty input fails to parse', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    parsePrice('garbage');
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('garbage'));
+    warn.mockRestore();
+  });
+
+  it('does not warn for an empty string', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    parsePrice('');
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
   });
 });
 
