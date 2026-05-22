@@ -2,24 +2,53 @@
   "name": "@choochoo/cli",
   "version": "1.0.0",
   "description": "CLI for NS.nl travel declaration downloads",
+  "license": "MIT",
+  "author": "Ryan George",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ryangeorge/choochoo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ryangeorge/choochoo/issues"
+  },
+  "homepage": "https://github.com/ryangeorge/choochoo#readme",
+  "keywords": [
+    "ns",
+    "ns.nl",
+    "trein",
+    "declaratie",
+    "expense",
+    "playwright",
+    "netherlands"
+  ],
   "type": "module",
   "bin": {
     "choochoo": "./dist/cli.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "build": "tsup",
     "dev": "tsx src/cli.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "prepublishOnly": "pnpm -w build"
   },
   "dependencies": {
-    "@choochoo/core": "workspace:*",
     "@clack/prompts": "^1.2.0",
     "citty": "^0.2.2",
     "playwright": "^1.59.1"
   },
   "devDependencies": {
+    "@choochoo/core": "workspace:*",
     "@types/node": "^25.6.0",
     "tsup": "^8.4.0",
     "tsx": "^4.19.0",
