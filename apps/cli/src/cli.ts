@@ -7,6 +7,8 @@ import {
   downloadPdf,
   extractTripsFromPage,
   formatPriceEur,
+  NsAuthError,
+  NsDownloadError,
   parseSelection,
   periodFromRange,
   processTrips,
@@ -53,6 +55,27 @@ const resolvePeriod = (args: { period?: string; from?: string; to?: string }): s
   return args.period ?? 'this-month';
 };
 
+/** Print a concise error message (no stack) and exit with a non-zero status. */
+const failWith = (err: unknown): never => {
+  const message = err instanceof Error ? err.message : String(err);
+  console.error(`Error: ${message}`);
+  if (err instanceof NsAuthError) {
+    console.error('Hint: check your credentials in ~/.config/choochoo/config.json');
+  } else if (err instanceof NsDownloadError) {
+    console.error('Hint: verify your --select value and that trips exist for this period');
+  }
+  process.exit(1);
+};
+
+/** Run a command body, catching and reporting any error as a concise message. */
+const runSafely = async (body: () => Promise<void>): Promise<void> => {
+  try {
+    await body();
+  } catch (err) {
+    failWith(err);
+  }
+};
+
 const init = defineCommand({
   meta: { name: 'init', description: 'Create a config file template at ~/.config/choochoo/config.json' },
   async run() {
@@ -80,27 +103,29 @@ const extract = defineCommand({
     },
   },
   async run({ args }) {
-    const period = resolvePeriod(args);
-    await withNsSession({ ...args, period }, async ({ page, period: resolvedPeriod, config }) => {
-      const raw = await extractTripsFromPage(page);
-      const result = processTrips(raw);
-      const tripsForDisplay = config.tripOrder === 'desc' ? result.trips : [...result.trips].reverse();
+    await runSafely(async () => {
+      const period = resolvePeriod(args);
+      await withNsSession({ ...args, period }, async ({ page, period: resolvedPeriod, config }) => {
+        const raw = await extractTripsFromPage(page);
+        const result = processTrips(raw);
+        const tripsForDisplay = config.tripOrder === 'desc' ? result.trips : [...result.trips].reverse();
 
-      console.log(`\n${result.trips.length} trips (${result.excluded} zero-cost excluded)`);
-      for (const trip of tripsForDisplay) {
-        console.log(
-          `  ${String(trip.num).padStart(2)}  ${trip.date.padEnd(28)}  ${trip.from} → ${trip.to}  ${formatPriceEur(trip.priceEur)}`,
-        );
-      }
-      console.log(`  Total: ${formatPriceEur(result.totalEur)}\n`);
+        console.log(`\n${result.trips.length} trips (${result.excluded} zero-cost excluded)`);
+        for (const trip of tripsForDisplay) {
+          console.log(
+            `  ${String(trip.num).padStart(2)}  ${trip.date.padEnd(28)}  ${trip.from} → ${trip.to}  ${formatPriceEur(trip.priceEur)}`,
+          );
+        }
+        console.log(`  Total: ${formatPriceEur(result.totalEur)}\n`);
 
-      const writeJson = args.json || !!args.output;
-      if (writeJson) {
-        const jsonPath = args.output ? resolve(args.output) : defaultTripsPath(resolvedPeriod, config.downloadsDir);
-        mkdirSync(dirname(jsonPath), { recursive: true });
-        writeFileSync(jsonPath, `${JSON.stringify({ ...result, period: resolvedPeriod }, null, 2)}\n`);
-        console.log(`JSON: ${jsonPath}\n`);
-      }
+        const writeJson = args.json || !!args.output;
+        if (writeJson) {
+          const jsonPath = args.output ? resolve(args.output) : defaultTripsPath(resolvedPeriod, config.downloadsDir);
+          mkdirSync(dirname(jsonPath), { recursive: true });
+          writeFileSync(jsonPath, `${JSON.stringify({ ...result, period: resolvedPeriod }, null, 2)}\n`);
+          console.log(`JSON: ${jsonPath}\n`);
+        }
+      });
     });
   },
 });
@@ -120,14 +145,16 @@ const download = defineCommand({
     },
   },
   async run({ args }) {
-    const selection = parseSelection(args.select);
-    const period = resolvePeriod(args);
-    await withNsSession({ ...args, period }, async ({ page, period: resolvedPeriod, config }) => {
-      const outputPath = args.output ? resolve(args.output) : defaultPdfPath(resolvedPeriod, config.downloadsDir);
+    await runSafely(async () => {
+      const selection = parseSelection(args.select);
+      const period = resolvePeriod(args);
+      await withNsSession({ ...args, period }, async ({ page, period: resolvedPeriod, config }) => {
+        const outputPath = args.output ? resolve(args.output) : defaultPdfPath(resolvedPeriod, config.downloadsDir);
 
-      await configureDownload(page, selection);
-      await downloadPdf(page, outputPath);
-      console.log(`\nPDF: ${outputPath}\n`);
+        await configureDownload(page, selection);
+        await downloadPdf(page, outputPath);
+        console.log(`\nPDF: ${outputPath}\n`);
+      });
     });
   },
 });
@@ -142,7 +169,9 @@ const main = defineCommand({
     },
   },
   async run({ args }) {
-    await runInteractive({ headed: args.headed });
+    await runSafely(async () => {
+      await runInteractive({ headed: args.headed });
+    });
   },
   subCommands: { init, extract, download },
 });
