@@ -47,7 +47,7 @@ export const extractTripsFromPage = async (page: Page): Promise<RawTrip[]> => {
             .replace(/\s+/g, ' ')
             .trim()
             .match(/([a-z]+ \d+ [a-z]+ \d+)/i);
-          if (match) date = match[1]!;
+          if (match?.[1]) date = match[1];
         }
       }
 
