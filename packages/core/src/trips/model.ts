@@ -26,6 +26,8 @@ export const processTrips = (rawTrips: RawTrip[], excludeZeroCost = true): Extra
   const trips: Trip[] = rawTrips.map((trip) => ({ ...trip, priceEur: parsePrice(trip.price) }));
   const billable = excludeZeroCost ? trips.filter((trip) => trip.priceEur > 0) : trips;
   const excluded = trips.length - billable.length;
-  const totalEur = Math.round(billable.reduce((sum, trip) => sum + trip.priceEur, 0) * 100) / 100;
+  // Sum in cents (integer) to avoid float drift on chains of 8,50/3,40/etc.
+  const totalCents = billable.reduce((sum, trip) => sum + Math.round(trip.priceEur * 100), 0);
+  const totalEur = totalCents / 100;
   return { trips: billable, excluded, totalEur };
 };
