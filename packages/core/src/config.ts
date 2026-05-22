@@ -60,12 +60,23 @@ export const loadConfig = (options: ConfigOptions = {}): NsConfig => {
     );
   }
 
-  const cards = (cfg.cards as Card[] | undefined) ?? [];
-  for (const card of cards) {
-    if (!card.id) {
-      throw new Error(`Card "${card.name}" is missing required "id" field. Find it in NS dashboard URL.`);
-    }
+  const rawCards = cfg.cards;
+  if (rawCards !== undefined && !Array.isArray(rawCards)) {
+    throw new Error('Config "cards" must be an array.');
   }
+  const cards: Card[] = (rawCards ?? []).map((entry: unknown, index: number) => {
+    if (!entry || typeof entry !== 'object') {
+      throw new Error(`Card at index ${index} must be an object with "name" and "id".`);
+    }
+    const { name, id } = entry as { name?: unknown; id?: unknown };
+    if (typeof name !== 'string' || name.length === 0) {
+      throw new Error(`Card at index ${index} is missing required "name".`);
+    }
+    if (typeof id !== 'string' || id.length === 0) {
+      throw new Error(`Card at index ${index} is missing required "id".`);
+    }
+    return { name, id };
+  });
   const downloadsDir = options.downloadsDir || (cfg.downloadsDir as string | undefined);
   const rawOrder = options.tripOrder ?? (cfg.tripOrder as unknown);
   const tripOrder: TripOrder = rawOrder === 'desc' ? 'desc' : 'asc';

@@ -60,6 +60,26 @@ describe('loadConfig', () => {
     expect(cfg.cards).toEqual([{ name: 'personal', id: 'uuid-1' }]);
   });
 
+  it('throws when cards is not an array', () => {
+    vi.mocked(readFileSync).mockReturnValue(JSON.stringify({ cards: 'not-an-array' }));
+    expect(() => loadConfig({ email: 'a', password: 'b' })).toThrow(/"cards" must be an array/);
+  });
+
+  it('throws when a card entry is missing name', () => {
+    vi.mocked(readFileSync).mockReturnValue(JSON.stringify({ cards: [{ id: 'uuid-1' }] }));
+    expect(() => loadConfig({ email: 'a', password: 'b' })).toThrow(/Card at index 0 is missing required "name"/);
+  });
+
+  it('throws when a card entry is missing id', () => {
+    vi.mocked(readFileSync).mockReturnValue(JSON.stringify({ cards: [{ name: 'personal' }] }));
+    expect(() => loadConfig({ email: 'a', password: 'b' })).toThrow(/Card at index 0 is missing required "id"/);
+  });
+
+  it('throws when a card entry is not an object', () => {
+    vi.mocked(readFileSync).mockReturnValue(JSON.stringify({ cards: ['nope'] }));
+    expect(() => loadConfig({ email: 'a', password: 'b' })).toThrow(/Card at index 0 must be an object/);
+  });
+
   it('leaves downloadsDir undefined when not set', () => {
     const cfg = loadConfig({ email: 'a', password: 'b' });
     expect(cfg.downloadsDir).toBeUndefined();
