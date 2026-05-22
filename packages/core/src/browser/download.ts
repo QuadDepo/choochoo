@@ -1,6 +1,6 @@
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
-import type { Page } from 'playwright';
+import type { Page } from 'playwright-core';
 import { parsePrice } from '../utils/price';
 import { SELECTORS } from './selectors';
 

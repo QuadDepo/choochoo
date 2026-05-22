@@ -13,7 +13,7 @@ import {
   type TripGroup,
 } from '@choochoo/core';
 import { cancel, groupMultiselect, intro, isCancel, outro, select, spinner } from '@clack/prompts';
-import type { Page } from 'playwright';
+import type { Page } from 'playwright-core';
 import { withNsSession } from '../session';
 import { orderGroupsForDisplay } from './display-order';
 import { formatRow } from './formatters';

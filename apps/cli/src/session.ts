@@ -13,7 +13,7 @@ import {
   SESSION_PATH,
   waitForTrips,
 } from '@choochoo/core';
-import type { BrowserContext, Page } from 'playwright';
+import type { BrowserContext, Page } from 'playwright-core';
 
 interface SessionArgs {
   period?: string;

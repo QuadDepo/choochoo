@@ -1,4 +1,4 @@
-import { type BrowserContext, chromium, type Page } from 'playwright';
+import { type BrowserContext, chromium, type Page } from 'playwright-core';
 import { detectChrome } from './chrome';
 
 export interface BrowserOptions {

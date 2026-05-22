@@ -1,4 +1,4 @@
-import { errors, type Page } from 'playwright';
+import { errors, type Page } from 'playwright-core';
 
 const SEL_COOKIE_ACCEPT = 'button:has-text("Akkoord")';
 const SEL_LOGIN_EMAIL = 'input[type="email"]';

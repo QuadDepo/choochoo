@@ -1,4 +1,4 @@
-import type { Page } from 'playwright';
+import type { Page } from 'playwright-core';
 import type { RawTrip } from '../trips/model';
 import { SELECTORS } from './selectors';
 

@@ -1,4 +1,4 @@
-import { chromium, type Page } from 'playwright';
+import { chromium, type Page } from 'playwright-core';
 
 export interface TestSession {
   page: Page;
